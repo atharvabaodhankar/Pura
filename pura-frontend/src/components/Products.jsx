@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import useFadeUp from '../hooks/useFadeUp';
 import { useCartStore } from '../stores/cartStore';
@@ -322,9 +322,38 @@ function ProductCard({ product, onAddToCart }) {
 
 export default function Products({ onAddToCart }) {
   const [filter, setFilter] = useState('all');
+  const [dbProducts, setDbProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
   const headerRef = useFadeUp();
 
-  const filtered = filter === 'all' ? products : products.filter((p) => p.cat === filter);
+  useEffect(() => {
+    fetch('http://localhost:5000/api/products')
+      .then(res => res.json())
+      .then(data => {
+        // Map backend structure to the UI structure expected by ProductCard
+        const mapped = data.map(p => ({
+          id: p.id,
+          slug: p.slug,
+          cat: p.category,
+          name: p.name,
+          desc: p.description,
+          price: p.price,
+          priceDisplay: `₹${p.price}`,
+          oldPrice: p.compare_price ? `₹${p.compare_price}` : null,
+          img: p.images && p.images.length > 0 ? p.images[0] : '',
+          imgBg: '#fdf6ee', // default card bg
+          ingredients: [],
+          variants: [],
+          category: p.category.charAt(0).toUpperCase() + p.category.slice(1)
+        }));
+        setDbProducts(mapped);
+      })
+      .catch(err => console.error("Error fetching products", err))
+      .finally(() => setLoading(false));
+  }, []);
+
+  const dataToDisplay = dbProducts.length > 0 ? dbProducts : products; // fallback to static if db empty
+  const filtered = filter === 'all' ? dataToDisplay : dataToDisplay.filter((p) => p.cat === filter);
 
   return (
     <section id="products" className="py-32 px-16 max-w-[1400px] mx-auto relative z-1 max-md:py-20 max-md:px-6">
@@ -358,15 +387,19 @@ export default function Products({ onAddToCart }) {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
-        {filtered.map((product, i) => (
-          <ProductCard
-            key={product.id}
-            product={product}
-            onAddToCart={onAddToCart}
-          />
-        ))}
-      </div>
+      {loading ? (
+         <div className="text-center py-20 text-text-muted">Loading products...</div>
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+          {filtered.map((product, i) => (
+            <ProductCard
+              key={product.id}
+              product={product}
+              onAddToCart={onAddToCart}
+            />
+          ))}
+        </div>
+      )}
     </section>
   );
 }
