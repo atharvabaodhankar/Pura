@@ -119,7 +119,7 @@ export default function Orders() {
                     </div>
                     <div>
                       <div className="text-[0.65rem] font-bold text-charcoal/40 uppercase tracking-widest mb-1">Ship to</div>
-                      <div className="font-medium text-charcoal truncate max-w-[200px]">{order.shipping_address}</div>
+                      <div className="font-medium text-charcoal truncate max-w-[200px]">{order.shipping_address?.full_address || order.shipping_address}</div>
                     </div>
                   </div>
                   <div className="flex items-center gap-4">

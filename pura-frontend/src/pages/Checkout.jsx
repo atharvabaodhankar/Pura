@@ -3,7 +3,8 @@ import { useNavigate, Link } from 'react-router-dom';
 import { useCartStore } from '../stores/cartStore';
 import { useAuth } from '../context/AuthContext';
 import { supabase } from '../lib/supabase';
-import { ChevronRight, ShieldCheck, MapPin, CreditCard, ShoppingBag, ArrowLeft, CheckCircle2 } from 'lucide-react';
+import { ChevronRight, ShieldCheck, MapPin, CreditCard, ShoppingBag, ArrowLeft, CheckCircle2, LocateFixed } from 'lucide-react';
+import { GoogleMap, useJsApiLoader, Marker } from '@react-google-maps/api';
 
 export default function Checkout() {
   const navigate = useNavigate();
@@ -18,8 +19,46 @@ export default function Checkout() {
     address: '',
     city: '',
     postalCode: '',
-    phone: ''
+    phone: '',
+    location: null
   });
+
+  const { isLoaded } = useJsApiLoader({
+    id: 'google-map-script',
+    googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY || ''
+  });
+
+  const mapContainerStyle = {
+    width: '100%',
+    height: '250px'
+  };
+
+  const defaultCenter = {
+    lat: 28.6139,
+    lng: 77.2090 // New Delhi default
+  };
+
+  const handleMapClick = (e) => {
+    setFormData(prev => ({
+      ...prev,
+      location: { lat: e.latLng.lat(), lng: e.latLng.lng() }
+    }));
+  };
+
+  const locateMe = () => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition((position) => {
+        setFormData(prev => ({
+          ...prev,
+          location: { lat: position.coords.latitude, lng: position.coords.longitude }
+        }));
+      }, () => {
+        alert("Failed to get location.");
+      });
+    } else {
+      alert("Geolocation is not supported by this browser.");
+    }
+  };
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -44,7 +83,10 @@ export default function Checkout() {
           user_id: user.id,
           total_amount: total,
           status: 'pending',
-          shipping_address: `${formData.address}, ${formData.city}, ${formData.postalCode}`,
+          shipping_address: {
+            full_address: `${formData.address}, ${formData.city}, ${formData.postalCode}`,
+            location: formData.location
+          },
           payment_method: 'cod' // For this demo
         })
         .select()
@@ -214,6 +256,32 @@ export default function Checkout() {
                     placeholder="+91 XXXXX XXXXX" 
                     required 
                   />
+                </div>
+                <div className="md:col-span-2 pt-4">
+                  <div className="flex items-center justify-between mb-3">
+                    <label className="block text-sm font-bold text-charcoal/60 uppercase tracking-widest">Pin Location on Map</label>
+                    <button type="button" onClick={locateMe} className="flex items-center gap-2 text-xs font-bold text-sage-dark hover:underline bg-transparent border-none cursor-pointer p-0">
+                      <LocateFixed className="w-4 h-4" /> Locate Me
+                    </button>
+                  </div>
+                  {isLoaded ? (
+                    <div className="rounded-2xl overflow-hidden border border-glass-border shadow-inner">
+                      <GoogleMap
+                        mapContainerStyle={mapContainerStyle}
+                        center={formData.location || defaultCenter}
+                        zoom={formData.location ? 16 : 11}
+                        onClick={handleMapClick}
+                        options={{ disableDefaultUI: true, zoomControl: true }}
+                      >
+                        {formData.location && <Marker position={formData.location} />}
+                      </GoogleMap>
+                    </div>
+                  ) : (
+                    <div className="h-[250px] bg-black/5 rounded-2xl flex items-center justify-center animate-pulse border border-glass-border">
+                      <span className="text-text-muted text-sm font-medium">Loading Map...</span>
+                    </div>
+                  )}
+                  {!formData.location && <p className="text-xs text-amber-600 font-medium mt-2">Please pin your exact location on the map.</p>}
                 </div>
               </form>
             </section>
