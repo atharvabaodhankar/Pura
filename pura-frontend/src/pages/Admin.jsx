@@ -39,13 +39,50 @@ export default function Admin() {
   }, [profile, authLoading]);
 
   const fetchOrders = async () => {
-    const { data } = await supabase
-      .from('orders')
-      .select('*, profiles(full_name, email)')
-      .order('created_at', { ascending: false });
-    
-    if (data) setOrders(data);
-    setLoading(false);
+    try {
+      const { data: ordersData, error: ordersError } = await supabase
+        .from('orders')
+        .select('*')
+        .order('created_at', { ascending: false });
+      
+      if (ordersError) throw ordersError;
+
+      if (!ordersData || ordersData.length === 0) {
+        setOrders([]);
+        setLoading(false);
+        return;
+      }
+
+      // Extract unique user_ids to fetch profiles
+      const userIds = [...new Set(ordersData.map(o => o.user_id).filter(Boolean))];
+      
+      let profilesMap = {};
+      if (userIds.length > 0) {
+        const { data: profilesData } = await supabase
+          .from('profiles')
+          .select('id, full_name, email')
+          .in('id', userIds);
+          
+        if (profilesData) {
+          profilesMap = profilesData.reduce((acc, profile) => {
+            acc[profile.id] = profile;
+            return acc;
+          }, {});
+        }
+      }
+
+      // Merge profiles into orders
+      const mergedOrders = ordersData.map(order => ({
+        ...order,
+        profiles: profilesMap[order.user_id] || { full_name: 'Guest', email: '' }
+      }));
+
+      setOrders(mergedOrders);
+    } catch (err) {
+      console.error("Error fetching orders:", err);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const updateOrderStatus = async (orderId, status) => {
