@@ -1,4 +1,8 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { AuthProvider } from './context/AuthContext';
+import { useCartStore } from './stores/cartStore';
+
 import Navbar from './components/Navbar';
 import ScrollProgress from './components/ScrollProgress';
 import Toast from './components/Toast';
@@ -11,9 +15,39 @@ import Testimonials from './components/Testimonials';
 import HowItWorks from './components/HowItWorks';
 import CtaBanner from './components/CtaBanner';
 import Footer from './components/Footer';
+import CartDrawer from './components/CartDrawer';
+
+// Pages
+import Login from './pages/Login';
+import Signup from './pages/Signup';
+import Admin from './pages/Admin';
+import ProductDetail from './pages/ProductDetail';
+import Checkout from './pages/Checkout';
+import Orders from './pages/Orders';
+
+function LandingPage({ onAddToCart }) {
+  return (
+    <>
+      <Hero />
+      <Marquee />
+      <Products onAddToCart={onAddToCart} />
+      <Ingredients />
+      <WhyUs />
+      <Testimonials />
+      <HowItWorks />
+      <CtaBanner />
+    </>
+  );
+}
 
 function App() {
   const [showToast, setShowToast] = useState(false);
+  const [isCartOpen, setIsCartOpen] = useState(false);
+  const fetchCart = useCartStore(state => state.fetchCart);
+
+  useEffect(() => {
+    fetchCart();
+  }, [fetchCart]);
 
   const handleAddToCart = () => {
     setShowToast(true);
@@ -21,20 +55,26 @@ function App() {
   };
 
   return (
-    <>
-      <ScrollProgress />
-      <Toast show={showToast} />
-      <Navbar />
-      <Hero />
-      <Marquee />
-      <Products onAddToCart={handleAddToCart} />
-      <Ingredients />
-      <WhyUs />
-      <Testimonials />
-      <HowItWorks />
-      <CtaBanner />
-      <Footer />
-    </>
+    <AuthProvider>
+      <BrowserRouter>
+        <ScrollProgress />
+        <Toast show={showToast} />
+        <Navbar onCartClick={() => setIsCartOpen(true)} />
+        <CartDrawer isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} />
+        
+        <Routes>
+          <Route path="/" element={<LandingPage onAddToCart={handleAddToCart} />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/signup" element={<Signup />} />
+          <Route path="/admin" element={<Admin />} />
+          <Route path="/product/:slug" element={<ProductDetail />} />
+          <Route path="/checkout" element={<Checkout />} />
+          <Route path="/orders" element={<Orders />} />
+        </Routes>
+        
+        <Footer />
+      </BrowserRouter>
+    </AuthProvider>
   );
 }
 

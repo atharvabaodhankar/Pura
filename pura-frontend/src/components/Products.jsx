@@ -1,5 +1,7 @@
 import { useState, useRef } from 'react';
+import { Link } from 'react-router-dom';
 import useFadeUp from '../hooks/useFadeUp';
+import { useCartStore } from '../stores/cartStore';
 
 const PlusIcon = () => (
   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
@@ -16,7 +18,9 @@ const CheckIcon = () => (
 
 const products = [
   {
-    id: 1, cat: 'sanitizer', tag: 'Bestseller', tagColor: null,
+    id: 'b2a95c43-982e-4b44-9366-0746e537e5e1', 
+    slug: 'aloe-green-tea-sanitizer',
+    cat: 'sanitizer', tag: 'Bestseller', tagColor: null,
     img: '/products/san-aloe.png', imgBg: '#eef7ee',
     category: 'Hand Sanitizer', name: 'Aloe & Green Tea',
     desc: 'Kills 99.9% germs with a refreshing burst of green tea and soothing aloe vera extract.',
@@ -26,14 +30,16 @@ const products = [
       { icon: '💧', name: 'Ethanol 70%' },
     ],
     variants: [
-      { color: '#7ab87f', title: 'Green Tea', active: true },
-      { color: '#a8c5aa', title: 'Mint' },
-      { color: '#c4dfc4', title: 'Cucumber' },
+      { id: 'some-variant-id-1', color: '#7ab87f', title: 'Green Tea', active: true },
+      { id: 'some-variant-id-2', color: '#a8c5aa', title: 'Mint' },
+      { id: 'some-variant-id-3', color: '#c4dfc4', title: 'Cucumber' },
     ],
-    price: '₹149', unit: '/ 100ml',
+    price: 149, priceDisplay: '₹149', unit: '/ 100ml',
   },
   {
-    id: 2, cat: 'sanitizer', tag: null,
+    id: 'd74652c7-0e6e-4e6f-8a48-a0c5cff6f759', 
+    slug: 'lavender-rose-sanitizer',
+    cat: 'sanitizer', tag: null,
     img: '/products/san-lavender.png', imgBg: '#f4f0fc',
     category: 'Hand Sanitizer', name: 'Lavender & Rose',
     desc: 'A calming floral blend that sanitizes deeply while leaving hands smelling like a garden.',
@@ -46,10 +52,12 @@ const products = [
       { color: '#9b7ed4', title: 'Lavender', active: true },
       { color: '#e8b0c4', title: 'Rose' },
     ],
-    price: '₹149', unit: '/ 100ml',
+    price: 149, priceDisplay: '₹149', unit: '/ 100ml',
   },
   {
-    id: 3, cat: 'sanitizer', tag: 'New', tagColor: null,
+    id: '1b9d6bcd-bbfd-4b2d-9b5d-ab8dfbbd4bed', 
+    slug: 'citrus-vitamin-e-sanitizer',
+    cat: 'sanitizer', tag: 'New', tagColor: null,
     img: '/products/san-citrus.png', imgBg: '#fff5ed',
     category: 'Hand Sanitizer', name: 'Citrus & Vitamin E',
     desc: 'Zesty citrus energy paired with Vitamin E — protection that nourishes as it cleanses.',
@@ -63,10 +71,12 @@ const products = [
       { color: '#f0c060', title: 'Lemon' },
       { color: '#f4a830', title: 'Orange' },
     ],
-    price: '₹169', unit: '/ 100ml',
+    price: 169, priceDisplay: '₹169', unit: '/ 100ml',
   },
   {
-    id: 4, cat: 'cream', tag: 'Top Rated', tagColor: null,
+    id: 'e1d9afbb-8c34-4b41-b8d5-115f2122c262', 
+    slug: 'shea-raw-honey-cream',
+    cat: 'cream', tag: 'Top Rated', tagColor: null,
     img: '/products/cream-shea.png', imgBg: '#fdf6ee',
     category: 'Moisturizing Hand Cream', name: 'Shea & Raw Honey',
     desc: 'Deep moisturizing formula with shea butter and raw honey. Repairs dry, cracked skin overnight.',
@@ -79,10 +89,12 @@ const products = [
       { color: '#e8b88a', title: 'Original', active: true },
       { color: '#f4d4a4', title: 'Light' },
     ],
-    price: '₹199', unit: '/ 75ml',
+    price: 199, priceDisplay: '₹199', unit: '/ 75ml',
   },
   {
-    id: 5, cat: 'cream', tag: null,
+    id: '8765e9fc-910f-48d6-9e66-6b2cbb13955b', 
+    slug: 'collagen-hyaluronic-cream',
+    cat: 'cream', tag: null,
     img: '/products/cream-collagen.png', imgBg: '#eef8fb',
     category: 'Moisturizing Hand Cream', name: 'Collagen & Hyaluronic',
     desc: 'Advanced anti-aging formula with collagen peptides and hyaluronic acid for plump, youthful hands.',
@@ -95,10 +107,12 @@ const products = [
       { color: '#70c8e0', title: 'Classic', active: true },
       { color: '#a8e0f0', title: 'Light' },
     ],
-    price: '₹249', unit: '/ 75ml',
+    price: 249, priceDisplay: '₹249', unit: '/ 75ml',
   },
   {
-    id: 6, cat: 'cream', tag: null,
+    id: '7b3e2189-cdb2-4d51-87ab-8f9f72b7a428', 
+    slug: 'rose-argan-oil-cream',
+    cat: 'cream', tag: null,
     img: '/products/cream-rose.png', imgBg: '#fff4f6',
     category: 'Moisturizing Hand Cream', name: 'Rose & Argan Oil',
     desc: 'Luxuriously rich formula with Moroccan argan oil and rose extract. Intensely nourishing for very dry hands.',
@@ -111,25 +125,29 @@ const products = [
       { color: '#f09098', title: 'Rose', active: true },
       { color: '#c4a882', title: 'Argan' },
     ],
-    price: '₹229', unit: '/ 75ml',
+    price: 229, priceDisplay: '₹229', unit: '/ 75ml',
   },
   {
-    id: 7, cat: 'bundle', tag: 'Save 20%', tagColor: 'var(--color-earth-dark)',
+    id: '2cb8d0b2-7bc2-4afc-a2b8-935dfba03337', 
+    slug: 'clean-hands-duo',
+    cat: 'bundle', tag: 'Save 20%', tagColor: 'var(--color-earth-dark)',
     img: '/products/bundle-duo.png', imgBg: '#f4faf4',
     category: 'Bundle · Best Value', name: 'The Clean Hands Duo',
     desc: 'Sanitizer + Moisturizing Cream together — sanitize, then restore. The perfect daily hand care ritual.',
     ingredients: [],
     variants: [],
-    price: '₹299', unit: null, oldPrice: '₹348',
+    price: 299, priceDisplay: '₹299', unit: null, oldPrice: '₹348',
   },
   {
-    id: 8, cat: 'bundle', tag: 'Save 25%', tagColor: 'var(--color-earth-dark)',
+    id: '5bdf8e9d-c5f1-4df0-b8d7-5674c935ee52', 
+    slug: 'family-care-trio',
+    cat: 'bundle', tag: 'Save 25%', tagColor: 'var(--color-earth-dark)',
     img: '/products/bundle-trio.png', imgBg: '#faf4fc',
     category: 'Bundle · Family Pack', name: 'Family Care Trio',
     desc: '3 products: Green Tea Sanitizer + Lavender Sanitizer + Shea Hand Cream. Everything a family needs.',
     ingredients: [],
     variants: [],
-    price: '₹399', unit: null, oldPrice: '₹497',
+    price: 399, priceDisplay: '₹399', unit: null, oldPrice: '₹497',
   },
 ];
 
@@ -143,10 +161,22 @@ const tabs = [
 function ProductCard({ product, onAddToCart }) {
   const [added, setAdded] = useState(false);
   const cardRef = useRef(null);
+  const addToCart = useCartStore(state => state.addToCart);
 
-  const handleAdd = () => {
+  const handleAdd = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
     setAdded(true);
-    onAddToCart();
+    
+    // Format product for cart store
+    addToCart({
+      id: product.id,
+      name: product.name,
+      price: product.price,
+      images: [product.img]
+    }, null, 1);
+    
+    onAddToCart(product.name);
     setTimeout(() => setAdded(false), 2200);
   };
 
@@ -164,9 +194,10 @@ function ProductCard({ product, onAddToCart }) {
   };
 
   return (
-    <div
+    <Link
+      to={`/product/${product.slug}`}
       ref={cardRef}
-      className="relative overflow-hidden cursor-pointer animate-fade-card"
+      className="relative overflow-hidden cursor-pointer animate-fade-card block no-underline"
       style={{
         background: 'var(--color-glass-bg)',
         backdropFilter: 'blur(20px)',
@@ -266,7 +297,7 @@ function ProductCard({ product, onAddToCart }) {
         {/* Footer */}
         <div className="flex items-center justify-between">
           <div className="font-heading text-2xl font-semibold text-charcoal">
-            {product.price}{' '}
+            {product.priceDisplay}{' '}
             {product.unit && <small className="font-body text-[0.7rem] text-text-muted font-normal">{product.unit}</small>}
             {product.oldPrice && (
               <small className="font-body text-[0.7rem] text-text-muted font-normal">
@@ -276,7 +307,7 @@ function ProductCard({ product, onAddToCart }) {
           </div>
           <button
             onClick={handleAdd}
-            className="w-11 h-11 rounded-full flex items-center justify-center text-cream border-none cursor-pointer transition-all duration-300 shrink-0"
+            className="w-11 h-11 rounded-full flex items-center justify-center text-cream border-none cursor-pointer transition-all duration-300 shrink-0 relative z-10"
             style={{
               background: added ? 'var(--color-sage-dark)' : 'var(--color-charcoal)',
             }}
@@ -285,7 +316,7 @@ function ProductCard({ product, onAddToCart }) {
           </button>
         </div>
       </div>
-    </div>
+    </Link>
   );
 }
 
