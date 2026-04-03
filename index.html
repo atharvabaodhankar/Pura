@@ -1,0 +1,2391 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pura — Clean Hands. Pure Life.</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&family=Playfair+Display:ital,wght@1,400;1,500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --sage: #7a9e7e;
+    --sage-light: #a8c5aa;
+    --sage-dark: #4a6b4e;
+    --cream: #f5f0e8;
+    --warm-white: #faf7f2;
+    --earth: #c4a882;
+    --earth-dark: #8b6f47;
+    --charcoal: #2c2c2a;
+    --text-muted: #7a7570;
+    --glass-bg: rgba(245,240,232,0.55);
+    --glass-border: rgba(196,168,130,0.25);
+  }
+
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--warm-white);
+    color: var(--charcoal);
+    overflow-x: hidden;
+    cursor: none;
+  }
+
+  /* ── CUSTOM CURSOR ── */
+  .cursor-dot {
+    position: fixed;
+    width: 8px; height: 8px;
+    background: var(--sage-dark);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 9999;
+    transform: translate(-50%,-50%);
+    transition: transform .1s ease, background .3s;
+  }
+  .cursor-ring {
+    position: fixed;
+    width: 36px; height: 36px;
+    border: 1.5px solid var(--sage);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 9998;
+    transform: translate(-50%,-50%);
+    transition: transform .18s ease, width .3s, height .3s, border-color .3s;
+  }
+  body:hover .cursor-ring { opacity: 1; }
+
+  /* ── NOISE TEXTURE ── */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 0;
+    opacity: .6;
+  }
+
+  /* ── NAV ── */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    padding: 1.5rem 4rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    transition: background .4s, backdrop-filter .4s;
+  }
+  nav.scrolled {
+    background: rgba(250,247,242,0.85);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--glass-border);
+  }
+  .nav-logo {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.8rem;
+    font-weight: 600;
+    letter-spacing: .04em;
+    color: var(--charcoal);
+    text-decoration: none;
+  }
+  .nav-logo span { color: var(--sage-dark); }
+  .nav-links {
+    display: flex;
+    gap: 2.5rem;
+    list-style: none;
+  }
+  .nav-links a {
+    text-decoration: none;
+    color: var(--charcoal);
+    font-size: .875rem;
+    font-weight: 400;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    position: relative;
+    transition: color .3s;
+  }
+  .nav-links a::after {
+    content: '';
+    position: absolute;
+    bottom: -3px; left: 0;
+    width: 0; height: 1px;
+    background: var(--sage-dark);
+    transition: width .3s;
+  }
+  .nav-links a:hover::after { width: 100%; }
+  .nav-links a:hover { color: var(--sage-dark); }
+  .nav-cta {
+    background: var(--charcoal);
+    color: var(--cream) !important;
+    padding: .65rem 1.6rem;
+    border-radius: 2rem;
+    font-size: .8rem !important;
+    letter-spacing: .1em !important;
+    transition: background .3s, transform .2s !important;
+  }
+  .nav-cta:hover { background: var(--sage-dark) !important; transform: translateY(-1px); }
+  .nav-cta::after { display: none !important; }
+
+  /* ── HERO ── */
+  #hero {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    position: relative;
+    overflow: hidden;
+    padding: 8rem 4rem 4rem;
+  }
+
+  /* Organic blobs */
+  .blob {
+    position: absolute;
+    border-radius: 60% 40% 70% 30% / 50% 60% 40% 50%;
+    filter: blur(60px);
+    opacity: .45;
+    animation: morphBlob 12s ease-in-out infinite alternate;
+  }
+  .blob-1 {
+    width: 600px; height: 600px;
+    background: radial-gradient(circle, #b8d4b9, #7a9e7e44);
+    top: -100px; right: -80px;
+    animation-duration: 14s;
+  }
+  .blob-2 {
+    width: 400px; height: 400px;
+    background: radial-gradient(circle, #e8d5b8, #c4a88266);
+    bottom: -50px; left: 200px;
+    animation-duration: 10s;
+    animation-delay: -5s;
+  }
+  .blob-3 {
+    width: 300px; height: 300px;
+    background: radial-gradient(circle, #d4e8d4, #7a9e7e44);
+    top: 40%; left: -60px;
+    animation-duration: 16s;
+    animation-delay: -3s;
+  }
+  @keyframes morphBlob {
+    0% { border-radius: 60% 40% 70% 30% / 50% 60% 40% 50%; transform: scale(1) rotate(0deg); }
+    100% { border-radius: 40% 60% 30% 70% / 60% 40% 50% 40%; transform: scale(1.1) rotate(15deg); }
+  }
+
+  .hero-inner {
+    position: relative;
+    z-index: 2;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4rem;
+    align-items: center;
+    max-width: 1300px;
+    margin: 0 auto;
+    width: 100%;
+  }
+
+  .hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: .5rem;
+    background: rgba(122,158,126,0.15);
+    border: 1px solid rgba(122,158,126,0.3);
+    padding: .4rem 1rem;
+    border-radius: 2rem;
+    font-size: .75rem;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: var(--sage-dark);
+    margin-bottom: 1.5rem;
+    backdrop-filter: blur(10px);
+  }
+  .hero-badge::before {
+    content: '';
+    width: 6px; height: 6px;
+    background: var(--sage);
+    border-radius: 50%;
+    animation: pulse 2s ease infinite;
+  }
+  @keyframes pulse {
+    0%,100% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.5); opacity: .6; }
+  }
+
+  .hero-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(3.5rem, 6vw, 6rem);
+    font-weight: 300;
+    line-height: 1.05;
+    letter-spacing: -.02em;
+    color: var(--charcoal);
+    margin-bottom: 1rem;
+  }
+  .hero-title em {
+    font-style: italic;
+    color: var(--sage-dark);
+  }
+
+  .hero-sub {
+    font-size: 1.05rem;
+    color: var(--text-muted);
+    line-height: 1.7;
+    max-width: 420px;
+    margin-bottom: 2.5rem;
+    font-weight: 300;
+  }
+
+  .hero-actions {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+
+  .btn-primary {
+    background: var(--charcoal);
+    color: var(--cream);
+    padding: .9rem 2.2rem;
+    border-radius: 3rem;
+    text-decoration: none;
+    font-size: .875rem;
+    letter-spacing: .06em;
+    font-weight: 500;
+    transition: background .3s, transform .25s, box-shadow .3s;
+    box-shadow: 0 8px 30px rgba(44,44,42,.2);
+    border: none;
+    cursor: none;
+    display: inline-flex;
+    align-items: center;
+    gap: .5rem;
+  }
+  .btn-primary:hover {
+    background: var(--sage-dark);
+    transform: translateY(-3px);
+    box-shadow: 0 16px 40px rgba(74,107,78,.3);
+  }
+  .btn-primary svg { transition: transform .3s; }
+  .btn-primary:hover svg { transform: translateX(4px); }
+
+  .btn-ghost {
+    background: transparent;
+    color: var(--charcoal);
+    padding: .9rem 2rem;
+    border-radius: 3rem;
+    text-decoration: none;
+    font-size: .875rem;
+    letter-spacing: .06em;
+    font-weight: 400;
+    border: 1.5px solid rgba(44,44,42,.25);
+    transition: border-color .3s, color .3s, transform .25s;
+    cursor: none;
+    display: inline-flex;
+    align-items: center;
+    gap: .5rem;
+  }
+  .btn-ghost:hover {
+    border-color: var(--sage);
+    color: var(--sage-dark);
+    transform: translateY(-2px);
+  }
+
+  /* Hero visual — 3D floating product cards */
+  .hero-visual {
+    position: relative;
+    height: 520px;
+    perspective: 1200px;
+  }
+
+  .floating-card {
+    position: absolute;
+    background: var(--glass-bg);
+    backdrop-filter: blur(20px);
+    border: 1px solid var(--glass-border);
+    border-radius: 24px;
+    padding: 2rem;
+    box-shadow:
+      0 20px 60px rgba(122,158,126,.15),
+      0 2px 10px rgba(196,168,130,.1),
+      inset 0 1px 0 rgba(255,255,255,.7);
+    transform-style: preserve-3d;
+    transition: transform .6s cubic-bezier(.23,1,.32,1);
+    cursor: none;
+  }
+
+  .fc-main {
+    width: 220px;
+    top: 30px; left: 50%;
+    transform: translateX(-50%) rotateY(-8deg) rotateX(4deg);
+    z-index: 3;
+    animation: floatMain 6s ease-in-out infinite;
+  }
+  .fc-left {
+    width: 170px;
+    top: 120px; left: 10px;
+    transform: rotateY(10deg) rotateX(-3deg) rotateZ(-4deg);
+    z-index: 2;
+    animation: floatLeft 7s ease-in-out infinite;
+    animation-delay: -2s;
+  }
+  .fc-right {
+    width: 160px;
+    top: 200px; right: 0px;
+    transform: rotateY(-12deg) rotateX(5deg) rotateZ(5deg);
+    z-index: 2;
+    animation: floatRight 8s ease-in-out infinite;
+    animation-delay: -4s;
+  }
+  .fc-bottom {
+    width: 200px;
+    bottom: 20px; left: 30%;
+    transform: rotateY(6deg) rotateX(-6deg);
+    z-index: 1;
+    animation: floatMain 9s ease-in-out infinite;
+    animation-delay: -1s;
+  }
+
+  @keyframes floatMain {
+    0%,100% { transform: translateX(-50%) rotateY(-8deg) rotateX(4deg) translateY(0px); }
+    50% { transform: translateX(-50%) rotateY(-6deg) rotateX(2deg) translateY(-14px); }
+  }
+  @keyframes floatLeft {
+    0%,100% { transform: rotateY(10deg) rotateX(-3deg) rotateZ(-4deg) translateY(0px); }
+    50% { transform: rotateY(8deg) rotateX(-1deg) rotateZ(-4deg) translateY(-10px); }
+  }
+  @keyframes floatRight {
+    0%,100% { transform: rotateY(-12deg) rotateX(5deg) rotateZ(5deg) translateY(0px); }
+    50% { transform: rotateY(-10deg) rotateX(3deg) rotateZ(5deg) translateY(-12px); }
+  }
+
+  .floating-card:hover {
+    transform: translateX(-50%) rotateY(0deg) rotateX(0deg) translateY(-8px) scale(1.04) !important;
+    box-shadow: 0 40px 80px rgba(122,158,126,.25), inset 0 1px 0 rgba(255,255,255,.9);
+    z-index: 10 !important;
+  }
+  .fc-left:hover, .fc-right:hover, .fc-bottom:hover {
+    transform: rotateY(0deg) rotateX(0deg) rotateZ(0deg) translateY(-8px) scale(1.04) !important;
+  }
+
+  .card-product-img {
+    width: 100%;
+    aspect-ratio: 1;
+    border-radius: 16px;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .card-product-name {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--charcoal);
+    margin-bottom: .2rem;
+  }
+  .card-product-variant {
+    font-size: .75rem;
+    color: var(--text-muted);
+    letter-spacing: .06em;
+  }
+  .card-product-price {
+    font-size: 1rem;
+    font-weight: 500;
+    color: var(--sage-dark);
+    margin-top: .5rem;
+  }
+
+  /* ── SECTION COMMON ── */
+  section { position: relative; z-index: 1; }
+  .section-label {
+    font-size: .72rem;
+    letter-spacing: .2em;
+    text-transform: uppercase;
+    color: var(--sage-dark);
+    margin-bottom: .8rem;
+    display: flex;
+    align-items: center;
+    gap: .7rem;
+  }
+  .section-label::before {
+    content: '';
+    width: 30px; height: 1px;
+    background: var(--sage);
+  }
+  .section-heading {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(2.4rem, 4vw, 3.8rem);
+    font-weight: 300;
+    line-height: 1.1;
+    letter-spacing: -.02em;
+    color: var(--charcoal);
+  }
+  .section-heading em { font-style: italic; color: var(--sage-dark); }
+
+  /* ── MARQUEE ── */
+  .marquee-wrap {
+    background: var(--charcoal);
+    padding: 1.2rem 0;
+    overflow: hidden;
+    display: flex;
+  }
+  .marquee-track {
+    display: flex;
+    gap: 3rem;
+    animation: marquee 20s linear infinite;
+    white-space: nowrap;
+  }
+  .marquee-track span {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.1rem;
+    font-style: italic;
+    color: rgba(245,240,232,.7);
+    letter-spacing: .05em;
+    flex-shrink: 0;
+  }
+  .marquee-track span.dot {
+    color: var(--sage-light);
+    font-style: normal;
+    font-size: 1.2rem;
+  }
+  @keyframes marquee {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
+  }
+
+  /* ── PRODUCTS SECTION ── */
+  #products {
+    padding: 8rem 4rem;
+    max-width: 1400px;
+    margin: 0 auto;
+  }
+  .products-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    margin-bottom: 4rem;
+  }
+
+  /* Category tabs */
+  .cat-tabs {
+    display: flex;
+    gap: .5rem;
+    background: rgba(122,158,126,.08);
+    padding: .4rem;
+    border-radius: 2rem;
+    border: 1px solid var(--glass-border);
+  }
+  .cat-tab {
+    padding: .55rem 1.4rem;
+    border-radius: 2rem;
+    border: none;
+    background: transparent;
+    font-family: 'DM Sans', sans-serif;
+    font-size: .82rem;
+    letter-spacing: .06em;
+    color: var(--text-muted);
+    cursor: none;
+    transition: all .3s;
+  }
+  .cat-tab.active {
+    background: var(--charcoal);
+    color: var(--cream);
+  }
+
+  /* Products grid */
+  .products-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 2rem;
+  }
+
+  .product-card {
+    background: var(--glass-bg);
+    backdrop-filter: blur(20px);
+    border: 1px solid var(--glass-border);
+    border-radius: 28px;
+    overflow: hidden;
+    transition: transform .5s cubic-bezier(.23,1,.32,1), box-shadow .5s;
+    cursor: none;
+    position: relative;
+    transform-style: preserve-3d;
+    perspective: 800px;
+  }
+  .product-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(255,255,255,.5) 0%, transparent 50%);
+    border-radius: 28px;
+    pointer-events: none;
+    z-index: 1;
+  }
+  .product-card:hover {
+    transform: translateY(-12px) rotateX(3deg);
+    box-shadow:
+      0 40px 80px rgba(122,158,126,.2),
+      0 10px 30px rgba(44,44,42,.08),
+      inset 0 1px 0 rgba(255,255,255,.9);
+  }
+
+  .product-img-wrap {
+    height: 240px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .product-img-wrap svg {
+    width: 80%;
+    height: 80%;
+    object-fit: contain;
+    transition: transform .5s cubic-bezier(.23,1,.32,1);
+    filter: drop-shadow(0 20px 40px rgba(0,0,0,.15));
+  }
+  .product-card:hover .product-img-wrap svg {
+    transform: translateY(-8px) scale(1.06);
+  }
+
+  .product-tag {
+    position: absolute;
+    top: 1rem; right: 1rem;
+    z-index: 2;
+    background: var(--sage-dark);
+    color: white;
+    font-size: .65rem;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    padding: .3rem .8rem;
+    border-radius: 2rem;
+  }
+
+  .product-info {
+    padding: 1.5rem 1.8rem 1.8rem;
+    position: relative;
+    z-index: 2;
+  }
+  .product-category {
+    font-size: .7rem;
+    letter-spacing: .15em;
+    text-transform: uppercase;
+    color: var(--sage-dark);
+    margin-bottom: .4rem;
+  }
+  .product-name {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--charcoal);
+    margin-bottom: .3rem;
+    line-height: 1.2;
+  }
+  .product-desc {
+    font-size: .82rem;
+    color: var(--text-muted);
+    line-height: 1.6;
+    margin-bottom: 1.2rem;
+  }
+
+  .product-variants {
+    display: flex;
+    gap: .4rem;
+    margin-bottom: 1.2rem;
+    flex-wrap: wrap;
+  }
+  .variant-dot {
+    width: 22px; height: 22px;
+    border-radius: 50%;
+    border: 2px solid transparent;
+    cursor: none;
+    transition: border-color .2s, transform .2s;
+    position: relative;
+  }
+  .variant-dot.active, .variant-dot:hover {
+    border-color: var(--charcoal);
+    transform: scale(1.15);
+  }
+
+  .product-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .product-price {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--charcoal);
+  }
+  .product-price small {
+    font-family: 'DM Sans', sans-serif;
+    font-size: .7rem;
+    color: var(--text-muted);
+    font-weight: 400;
+  }
+  .add-btn {
+    width: 44px; height: 44px;
+    border-radius: 50%;
+    background: var(--charcoal);
+    border: none;
+    color: var(--cream);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: none;
+    transition: background .3s, transform .3s;
+    flex-shrink: 0;
+  }
+  .add-btn:hover { background: var(--sage-dark); transform: rotate(90deg) scale(1.1); }
+
+  /* ── INGREDIENT STRIP ── */
+  #ingredients {
+    background: var(--charcoal);
+    padding: 8rem 4rem;
+    position: relative;
+    overflow: hidden;
+  }
+  #ingredients::before {
+    content: '';
+    position: absolute;
+    top: -200px; right: -200px;
+    width: 600px; height: 600px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(122,158,126,.3), transparent 70%);
+    pointer-events: none;
+  }
+  .ingredients-inner {
+    max-width: 1300px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1fr 1.6fr;
+    gap: 6rem;
+    align-items: center;
+  }
+  .ing-heading .section-label { color: var(--sage-light); }
+  .ing-heading .section-label::before { background: var(--sage-light); }
+  .ing-heading .section-heading { color: var(--cream); }
+  .ing-heading .section-heading em { color: var(--sage-light); }
+  .ing-sub {
+    color: rgba(245,240,232,.6);
+    margin-top: 1rem;
+    font-size: .9rem;
+    line-height: 1.7;
+    font-weight: 300;
+  }
+
+  .ingredients-list {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+  }
+  .ing-card {
+    background: rgba(245,240,232,.06);
+    border: 1px solid rgba(245,240,232,.1);
+    border-radius: 20px;
+    padding: 1.6rem;
+    transition: background .3s, transform .4s;
+    cursor: none;
+  }
+  .ing-card:hover {
+    background: rgba(122,158,126,.15);
+    transform: translateY(-4px);
+    border-color: rgba(122,158,126,.3);
+  }
+  .ing-icon {
+    font-size: 1.8rem;
+    margin-bottom: .8rem;
+  }
+  .ing-name {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--cream);
+    margin-bottom: .3rem;
+  }
+  .ing-desc {
+    font-size: .78rem;
+    color: rgba(245,240,232,.5);
+    line-height: 1.5;
+  }
+
+  /* ── WHY US ── */
+  #why {
+    padding: 8rem 4rem;
+    max-width: 1300px;
+    margin: 0 auto;
+  }
+  .why-header {
+    text-align: center;
+    margin-bottom: 4rem;
+  }
+  .why-header .section-label { justify-content: center; }
+  .why-header .section-label::before { display: none; }
+
+  .why-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2rem;
+  }
+  .why-card {
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: 24px;
+    padding: 2.5rem 2rem;
+    backdrop-filter: blur(15px);
+    transition: transform .4s cubic-bezier(.23,1,.32,1), box-shadow .4s;
+    position: relative;
+    overflow: hidden;
+    cursor: none;
+  }
+  .why-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(255,255,255,.6) 0%, transparent 60%);
+    pointer-events: none;
+  }
+  .why-card:hover {
+    transform: translateY(-8px) scale(1.02);
+    box-shadow: 0 30px 60px rgba(122,158,126,.18);
+  }
+  .why-num {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 4rem;
+    font-weight: 300;
+    color: rgba(122,158,126,.2);
+    line-height: 1;
+    margin-bottom: .5rem;
+    position: relative;
+    z-index: 1;
+  }
+  .why-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.4rem;
+    font-weight: 600;
+    color: var(--charcoal);
+    margin-bottom: .6rem;
+    position: relative;
+    z-index: 1;
+  }
+  .why-desc {
+    font-size: .85rem;
+    color: var(--text-muted);
+    line-height: 1.7;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* ── TESTIMONIALS ── */
+  #testimonials {
+    background: linear-gradient(170deg, #eef4ee 0%, var(--warm-white) 60%);
+    padding: 8rem 4rem;
+  }
+  .testi-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+  .testi-header {
+    text-align: center;
+    margin-bottom: 4rem;
+  }
+  .testi-header .section-label { justify-content: center; }
+  .testi-header .section-label::before { display: none; }
+
+  .testi-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2rem;
+  }
+  .testi-card {
+    background: rgba(255,255,255,.7);
+    border: 1px solid var(--glass-border);
+    border-radius: 24px;
+    padding: 2.2rem;
+    backdrop-filter: blur(15px);
+    transition: transform .4s, box-shadow .4s;
+    cursor: none;
+    box-shadow: 0 4px 20px rgba(0,0,0,.04);
+  }
+  .testi-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 20px 50px rgba(122,158,126,.15);
+  }
+  .testi-stars {
+    color: var(--earth);
+    font-size: 1rem;
+    margin-bottom: 1rem;
+    letter-spacing: .1em;
+  }
+  .testi-quote {
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+    font-size: 1.05rem;
+    color: var(--charcoal);
+    line-height: 1.6;
+    margin-bottom: 1.5rem;
+  }
+  .testi-author {
+    display: flex;
+    align-items: center;
+    gap: .8rem;
+  }
+  .testi-avatar {
+    width: 40px; height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1rem;
+    font-weight: 600;
+    color: white;
+    flex-shrink: 0;
+  }
+  .testi-name {
+    font-weight: 500;
+    font-size: .9rem;
+    color: var(--charcoal);
+  }
+  .testi-location {
+    font-size: .75rem;
+    color: var(--text-muted);
+  }
+
+  /* ── CTA BANNER ── */
+  #cta-banner {
+    margin: 0 4rem 6rem;
+    background: var(--charcoal);
+    border-radius: 32px;
+    padding: 5rem 5rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: relative;
+    overflow: hidden;
+    gap: 2rem;
+  }
+  #cta-banner::before {
+    content: '';
+    position: absolute;
+    width: 500px; height: 500px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(122,158,126,.4) 0%, transparent 70%);
+    top: -200px; right: -100px;
+    pointer-events: none;
+  }
+  #cta-banner::after {
+    content: '';
+    position: absolute;
+    width: 300px; height: 300px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(196,168,130,.2) 0%, transparent 70%);
+    bottom: -100px; left: 300px;
+    pointer-events: none;
+  }
+  .cta-text { position: relative; z-index: 2; }
+  .cta-label {
+    font-size: .72rem;
+    letter-spacing: .2em;
+    text-transform: uppercase;
+    color: var(--sage-light);
+    margin-bottom: .8rem;
+  }
+  .cta-heading {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(2rem, 3.5vw, 3rem);
+    font-weight: 300;
+    color: var(--cream);
+    line-height: 1.15;
+    margin-bottom: .5rem;
+  }
+  .cta-heading em { font-style: italic; color: var(--sage-light); }
+  .cta-sub {
+    font-size: .9rem;
+    color: rgba(245,240,232,.5);
+    font-weight: 300;
+  }
+  .cta-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    position: relative;
+    z-index: 2;
+    min-width: 300px;
+  }
+  .email-input-wrap {
+    display: flex;
+    background: rgba(245,240,232,.08);
+    border: 1px solid rgba(245,240,232,.2);
+    border-radius: 3rem;
+    overflow: hidden;
+    backdrop-filter: blur(10px);
+  }
+  .email-input-wrap input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    outline: none;
+    padding: .9rem 1.5rem;
+    color: var(--cream);
+    font-family: 'DM Sans', sans-serif;
+    font-size: .875rem;
+  }
+  .email-input-wrap input::placeholder { color: rgba(245,240,232,.35); }
+  .email-input-wrap button {
+    background: var(--sage-dark);
+    color: white;
+    border: none;
+    padding: .9rem 1.6rem;
+    font-family: 'DM Sans', sans-serif;
+    font-size: .8rem;
+    letter-spacing: .06em;
+    cursor: none;
+    transition: background .3s;
+    white-space: nowrap;
+  }
+  .email-input-wrap button:hover { background: var(--sage); }
+  .cta-note { font-size: .72rem; color: rgba(245,240,232,.3); text-align: center; }
+
+  /* ── FOOTER ── */
+  footer {
+    background: var(--charcoal);
+    padding: 4rem 4rem 2rem;
+    color: rgba(245,240,232,.5);
+  }
+  .footer-inner {
+    max-width: 1300px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr 1fr;
+    gap: 4rem;
+    padding-bottom: 3rem;
+    border-bottom: 1px solid rgba(245,240,232,.08);
+  }
+  .footer-brand-name {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 2rem;
+    font-weight: 600;
+    color: var(--cream);
+    margin-bottom: .8rem;
+  }
+  .footer-brand-name span { color: var(--sage-light); }
+  .footer-tagline {
+    font-size: .85rem;
+    line-height: 1.7;
+    color: rgba(245,240,232,.4);
+    max-width: 280px;
+    margin-bottom: 1.5rem;
+  }
+  .footer-socials {
+    display: flex;
+    gap: .8rem;
+  }
+  .social-btn {
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    background: rgba(245,240,232,.08);
+    border: 1px solid rgba(245,240,232,.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: rgba(245,240,232,.5);
+    text-decoration: none;
+    transition: background .3s, color .3s;
+    font-size: .8rem;
+    cursor: none;
+  }
+  .social-btn:hover { background: var(--sage-dark); color: white; }
+  .footer-col h4 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--cream);
+    margin-bottom: 1.2rem;
+  }
+  .footer-col ul { list-style: none; }
+  .footer-col ul li { margin-bottom: .7rem; }
+  .footer-col ul li a {
+    color: rgba(245,240,232,.4);
+    text-decoration: none;
+    font-size: .85rem;
+    transition: color .3s;
+    cursor: none;
+  }
+  .footer-col ul li a:hover { color: var(--sage-light); }
+  .footer-bottom {
+    max-width: 1300px;
+    margin: 2rem auto 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: .78rem;
+    color: rgba(245,240,232,.25);
+  }
+
+  /* ── SCROLL ANIMATIONS ── */
+  .fade-up {
+    opacity: 0;
+    transform: translateY(40px);
+    transition: opacity .8s cubic-bezier(.23,1,.32,1), transform .8s cubic-bezier(.23,1,.32,1);
+  }
+  .fade-up.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  .delay-100 { transition-delay: .1s; }
+  .delay-200 { transition-delay: .2s; }
+  .delay-300 { transition-delay: .3s; }
+  .delay-400 { transition-delay: .4s; }
+  .delay-500 { transition-delay: .5s; }
+
+  /* Hidden products */
+  .product-card[data-cat] { display: none; }
+  .product-card[data-cat].show { display: block; }
+  .product-card.show { animation: fadeCard .4s ease forwards; }
+  @keyframes fadeCard {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Scroll progress */
+  .scroll-bar {
+    position: fixed;
+    top: 0; left: 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--sage), var(--earth));
+    z-index: 200;
+    transition: width .1s;
+  }
+
+  /* Toast */
+  .toast {
+    position: fixed;
+    bottom: 2rem; right: 2rem;
+    background: var(--charcoal);
+    color: var(--cream);
+    padding: 1rem 1.8rem;
+    border-radius: 1rem;
+    font-size: .875rem;
+    z-index: 300;
+    transform: translateY(100px);
+    opacity: 0;
+    transition: transform .4s cubic-bezier(.23,1,.32,1), opacity .4s;
+    display: flex;
+    align-items: center;
+    gap: .6rem;
+  }
+  .toast.show { transform: translateY(0); opacity: 1; }
+
+  @media (max-width: 900px) {
+    nav { padding: 1.2rem 1.5rem; }
+    .nav-links { display: none; }
+    #hero { padding: 7rem 1.5rem 3rem; }
+    .hero-inner { grid-template-columns: 1fr; }
+    .hero-visual { height: 350px; }
+    #products { padding: 5rem 1.5rem; }
+    .products-header { flex-direction: column; align-items: flex-start; gap: 1.5rem; }
+    .ingredients-inner { grid-template-columns: 1fr; gap: 3rem; }
+    #ingredients { padding: 5rem 1.5rem; }
+    #why { padding: 5rem 1.5rem; }
+    .why-grid { grid-template-columns: 1fr; }
+    #testimonials { padding: 5rem 1.5rem; }
+    .testi-grid { grid-template-columns: 1fr; }
+    #cta-banner { margin: 0 1.5rem 4rem; padding: 3rem 2rem; flex-direction: column; }
+    footer { padding: 3rem 1.5rem 2rem; }
+    .footer-inner { grid-template-columns: 1fr 1fr; gap: 2rem; }
+    #how-it-works { padding: 5rem 1.5rem; }
+    .pf-flow { grid-template-columns: 1fr; gap: 1rem; padding: 1.5rem; }
+    .pf-arrow { transform: rotate(90deg); margin: 0 auto; }
+    .pf-result { flex-direction: column; }
+    .pf-result-stats { margin-left: 0; gap: 1.5rem; }
+  }
+
+  /* ── PRODUCT INGREDIENTS TAGS ── */
+  .product-ingredients {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .35rem;
+    margin-bottom: 1rem;
+  }
+  .ing-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: .3rem;
+    background: rgba(122,158,126,.12);
+    border: 1px solid rgba(122,158,126,.25);
+    color: var(--sage-dark);
+    font-size: .68rem;
+    letter-spacing: .04em;
+    padding: .25rem .65rem;
+    border-radius: 2rem;
+    font-weight: 500;
+    transition: background .2s, transform .2s;
+  }
+  .ing-tag:hover { background: rgba(122,158,126,.25); transform: translateY(-1px); }
+
+  /* ── PRODUCT PROCESS FLOW ── */
+  #how-it-works {
+    padding: 8rem 4rem;
+    background: var(--charcoal);
+    position: relative;
+    overflow: hidden;
+  }
+  #how-it-works::before {
+    content: '';
+    position: absolute;
+    top: -200px; right: -200px;
+    width: 700px; height: 700px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(122,158,126,.18), transparent 70%);
+    pointer-events: none;
+  }
+  #how-it-works::after {
+    content: '';
+    position: absolute;
+    bottom: -150px; left: -100px;
+    width: 500px; height: 500px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(196,168,130,.1), transparent 70%);
+    pointer-events: none;
+  }
+  .how-inner { max-width: 1200px; margin: 0 auto; position: relative; z-index: 1; }
+  .how-header { text-align: center; margin-bottom: 3rem; }
+  .how-header .section-label { justify-content: center; color: var(--sage-light); }
+  .how-header .section-label::before { display: none; }
+  .how-header .section-heading { color: var(--cream); }
+  .how-header .section-heading em { color: var(--sage-light); }
+  .how-header p { color: rgba(245,240,232,.5); margin-top: 1rem; font-size: .9rem; line-height: 1.7; }
+
+  /* Product selector tabs */
+  .pf-tabs {
+    display: flex;
+    gap: .5rem;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-bottom: 3rem;
+  }
+  .pf-tab {
+    padding: .55rem 1.3rem;
+    border-radius: 2rem;
+    border: 1px solid rgba(245,240,232,.15);
+    background: transparent;
+    color: rgba(245,240,232,.5);
+    font-family: 'DM Sans', sans-serif;
+    font-size: .78rem;
+    letter-spacing: .06em;
+    cursor: none;
+    transition: all .3s;
+    white-space: nowrap;
+  }
+  .pf-tab:hover { border-color: rgba(122,158,126,.5); color: var(--sage-light); }
+  .pf-tab.active {
+    background: var(--sage-dark);
+    border-color: var(--sage-dark);
+    color: white;
+  }
+
+  /* Flow panels */
+  .pf-panel { display: none; }
+  .pf-panel.active { display: block; animation: pfFadeIn .4s ease; }
+  @keyframes pfFadeIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* Flow row: ingredients → process → benefit */
+  .pf-flow {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr auto 1fr auto 1fr;
+    align-items: center;
+    gap: 0;
+    background: rgba(245,240,232,.04);
+    border: 1px solid rgba(245,240,232,.08);
+    border-radius: 24px;
+    padding: 2.5rem 2rem;
+    margin-bottom: 1.5rem;
+  }
+  .pf-node {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 0 .5rem;
+  }
+  .pf-node-icon {
+    width: 72px; height: 72px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.6rem;
+    margin-bottom: 1rem;
+    position: relative;
+    transition: transform .35s cubic-bezier(.23,1,.32,1);
+  }
+  .pf-node:hover .pf-node-icon { transform: translateY(-5px) scale(1.1); }
+  .pf-node-label {
+    font-size: .65rem;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    color: rgba(245,240,232,.35);
+    margin-bottom: .3rem;
+  }
+  .pf-node-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--cream);
+    line-height: 1.2;
+    margin-bottom: .3rem;
+  }
+  .pf-node-desc {
+    font-size: .72rem;
+    color: rgba(245,240,232,.45);
+    line-height: 1.5;
+    max-width: 130px;
+  }
+  .pf-arrow {
+    display: flex;
+    align-items: center;
+    color: rgba(122,158,126,.5);
+    padding: 0 .3rem;
+    flex-shrink: 0;
+  }
+  .pf-arrow svg { width: 28px; height: 28px; }
+
+  /* Ingredient source row at top */
+  .pf-sources {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+  }
+  .pf-source-chip {
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+    background: rgba(245,240,232,.06);
+    border: 1px solid rgba(245,240,232,.1);
+    border-radius: 2rem;
+    padding: .5rem 1rem;
+    font-size: .78rem;
+    color: rgba(245,240,232,.6);
+    transition: background .3s, border-color .3s;
+  }
+  .pf-source-chip:hover { background: rgba(122,158,126,.15); border-color: rgba(122,158,126,.3); color: var(--sage-light); }
+  .pf-source-chip span { font-size: 1rem; }
+
+  /* Result badge */
+  .pf-result {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    background: rgba(122,158,126,.1);
+    border: 1px solid rgba(122,158,126,.2);
+    border-radius: 16px;
+    padding: 1.2rem 1.8rem;
+    margin-top: 1.5rem;
+  }
+  .pf-result-icon { font-size: 2rem; flex-shrink: 0; }
+  .pf-result-label {
+    font-size: .65rem;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    color: var(--sage-light);
+    margin-bottom: .2rem;
+  }
+  .pf-result-text {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--cream);
+  }
+  .pf-result-stats {
+    display: flex;
+    gap: 2rem;
+    margin-left: auto;
+    flex-shrink: 0;
+  }
+  .pf-stat { text-align: center; }
+  .pf-stat-val {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.6rem;
+    font-weight: 600;
+    color: var(--sage-light);
+    line-height: 1;
+  }
+  .pf-stat-lbl { font-size: .65rem; color: rgba(245,240,232,.35); letter-spacing: .08em; margin-top: .2rem; }
+
+  @media (max-width: 900px) {
+    #how-it-works { padding: 5rem 1.5rem; }
+    .pf-flow { grid-template-columns: 1fr; gap: 1rem; padding: 1.5rem; }
+    .pf-arrow { transform: rotate(90deg); margin: 0 auto; }
+    .pf-result { flex-direction: column; }
+    .pf-result-stats { margin-left: 0; gap: 1.5rem; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Scroll progress bar -->
+<div class="scroll-bar" id="scrollBar"></div>
+
+<!-- Custom cursor -->
+<div class="cursor-dot" id="cursorDot"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+
+<!-- Toast -->
+<div class="toast" id="toast">
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+  Added to your bag
+</div>
+
+<!-- NAV -->
+<nav id="navbar">
+  <a href="#" class="nav-logo">Pur<span>a</span></a>
+  <ul class="nav-links">
+    <li><a href="#products">Products</a></li>
+    <li><a href="#ingredients">Ingredients</a></li>
+    <li><a href="#how-it-works">How It Works</a></li>
+    <li><a href="#why">Why Pura</a></li>
+    <li><a href="#testimonials">Reviews</a></li>
+    <li><a href="#cta-banner" class="nav-cta">Shop Now</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="blob blob-1"></div>
+  <div class="blob blob-2"></div>
+  <div class="blob blob-3"></div>
+
+  <div class="hero-inner">
+    <div class="hero-text fade-up">
+      <div class="hero-badge">100% Natural Origin · Dermatologist Tested</div>
+      <h1 class="hero-title">
+        Clean hands.<br>
+        <em>Pure life.</em>
+      </h1>
+      <p class="hero-sub">
+        Plant-powered protection for every hand in your home. Gentle on skin, tough on germs — formulated with love for your family.
+      </p>
+      <div class="hero-actions">
+        <a href="#products" class="btn-primary">
+          Explore Products
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+        </a>
+        <a href="#why" class="btn-ghost">Our Promise</a>
+      </div>
+    </div>
+
+    <div class="hero-visual fade-up delay-300">
+      <!-- Floating card: Main Sanitizer -->
+      <div class="floating-card fc-main" onclick="scrollToProducts()">
+        <div class="card-product-img" style="background: linear-gradient(135deg, #c8dfc9, #eef7ee);">
+          <svg viewBox="0 0 120 160" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:70%;height:70%">
+            <rect x="35" y="30" width="50" height="100" rx="14" fill="url(#san1)"/>
+            <rect x="48" y="18" width="24" height="18" rx="6" fill="#5d8f62"/>
+            <rect x="52" y="10" width="16" height="12" rx="4" fill="#4a6b4e"/>
+            <rect x="42" y="62" width="36" height="2" rx="1" fill="rgba(255,255,255,0.5)"/>
+            <text x="60" y="85" font-family="serif" font-size="9" fill="white" text-anchor="middle" font-weight="600">PURA</text>
+            <text x="60" y="97" font-family="sans-serif" font-size="5.5" fill="rgba(255,255,255,0.7)" text-anchor="middle">SANITIZER</text>
+            <defs><linearGradient id="san1" x1="35" y1="30" x2="85" y2="130" gradientUnits="userSpaceOnUse"><stop stop-color="#7ab87f"/><stop offset="1" stop-color="#4a7a50"/></linearGradient></defs>
+          </svg>
+        </div>
+        <div class="card-product-name">Pura Sanitizer</div>
+        <div class="card-product-variant">Aloe & Green Tea</div>
+        <div class="card-product-price">₹149</div>
+      </div>
+
+      <!-- Floating card: Cream -->
+      <div class="floating-card fc-left" onclick="scrollToProducts()">
+        <div class="card-product-img" style="background: linear-gradient(135deg, #f0e6d8, #faf4ec);">
+          <svg viewBox="0 0 120 140" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:70%;height:70%">
+            <ellipse cx="60" cy="100" rx="35" ry="28" fill="url(#cream1)"/>
+            <rect x="42" y="30" width="36" height="75" rx="18" fill="url(#cream2)"/>
+            <rect x="52" y="22" width="16" height="14" rx="5" fill="#b8946a"/>
+            <text x="60" y="75" font-family="serif" font-size="7" fill="white" text-anchor="middle" font-weight="600">PURA</text>
+            <text x="60" y="85" font-family="sans-serif" font-size="4.5" fill="rgba(255,255,255,0.75)" text-anchor="middle">HAND CREAM</text>
+            <defs>
+              <linearGradient id="cream1" x1="25" y1="80" x2="95" y2="120" gradientUnits="userSpaceOnUse"><stop stop-color="#d4a874"/><stop offset="1" stop-color="#c49060"/></linearGradient>
+              <linearGradient id="cream2" x1="42" y1="30" x2="78" y2="105" gradientUnits="userSpaceOnUse"><stop stop-color="#e8b88a"/><stop offset="1" stop-color="#c49060"/></linearGradient>
+            </defs>
+          </svg>
+        </div>
+        <div class="card-product-name">Restore Cream</div>
+        <div class="card-product-variant">Shea & Honey</div>
+        <div class="card-product-price">₹199</div>
+      </div>
+
+      <!-- Floating card: Mini set -->
+      <div class="floating-card fc-right" onclick="scrollToProducts()">
+        <div class="card-product-img" style="background: linear-gradient(135deg, #dceadc, #f0f7f0);">
+          <svg viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:75%;height:75%">
+            <rect x="20" y="25" width="35" height="72" rx="10" fill="url(#set1)"/>
+            <rect x="30" y="16" width="16" height="14" rx="4" fill="#4a7a50"/>
+            <rect x="65" y="35" width="32" height="60" rx="10" fill="url(#set2)"/>
+            <rect x="72" y="27" width="14" height="12" rx="3" fill="#b8946a"/>
+            <text x="37" y="65" font-family="serif" font-size="6.5" fill="white" text-anchor="middle">PURA</text>
+            <text x="81" y="70" font-family="serif" font-size="6" fill="white" text-anchor="middle">PURA</text>
+            <defs>
+              <linearGradient id="set1" x1="20" y1="25" x2="55" y2="97" gradientUnits="userSpaceOnUse"><stop stop-color="#7ab87f"/><stop offset="1" stop-color="#4a7a50"/></linearGradient>
+              <linearGradient id="set2" x1="65" y1="35" x2="97" y2="95" gradientUnits="userSpaceOnUse"><stop stop-color="#e8b88a"/><stop offset="1" stop-color="#c49060"/></linearGradient>
+            </defs>
+          </svg>
+        </div>
+        <div class="card-product-name">Duo Set</div>
+        <div class="card-product-price">₹299</div>
+      </div>
+
+      <!-- Stats card -->
+      <div class="floating-card fc-bottom" style="padding:1.2rem 1.5rem;">
+        <div style="display:flex;gap:2rem;align-items:center;">
+          <div style="text-align:center;">
+            <div style="font-family:'Cormorant Garamond',serif;font-size:1.8rem;font-weight:600;color:var(--sage-dark);">99.9%</div>
+            <div style="font-size:.7rem;color:var(--text-muted);letter-spacing:.05em;">Germ Kill</div>
+          </div>
+          <div style="width:1px;height:40px;background:var(--glass-border);"></div>
+          <div style="text-align:center;">
+            <div style="font-family:'Cormorant Garamond',serif;font-size:1.8rem;font-weight:600;color:var(--earth-dark);">100%</div>
+            <div style="font-size:.7rem;color:var(--text-muted);letter-spacing:.05em;">Natural</div>
+          </div>
+          <div style="width:1px;height:40px;background:var(--glass-border);"></div>
+          <div style="text-align:center;">
+            <div style="font-family:'Cormorant Garamond',serif;font-size:1.8rem;font-weight:600;color:var(--charcoal);">0</div>
+            <div style="font-size:.7rem;color:var(--text-muted);letter-spacing:.05em;">Parabens</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- MARQUEE -->
+<div class="marquee-wrap">
+  <div class="marquee-track">
+    <span>Natural Origin</span><span class="dot">✦</span>
+    <span>Dermatologist Tested</span><span class="dot">✦</span>
+    <span>Paraben Free</span><span class="dot">✦</span>
+    <span>Family Safe</span><span class="dot">✦</span>
+    <span>Cruelty Free</span><span class="dot">✦</span>
+    <span>Aloe Vera Enriched</span><span class="dot">✦</span>
+    <span>No Harsh Chemicals</span><span class="dot">✦</span>
+    <span>pH Balanced</span><span class="dot">✦</span>
+    <!-- duplicate for seamless loop -->
+    <span>Natural Origin</span><span class="dot">✦</span>
+    <span>Dermatologist Tested</span><span class="dot">✦</span>
+    <span>Paraben Free</span><span class="dot">✦</span>
+    <span>Family Safe</span><span class="dot">✦</span>
+    <span>Cruelty Free</span><span class="dot">✦</span>
+    <span>Aloe Vera Enriched</span><span class="dot">✦</span>
+    <span>No Harsh Chemicals</span><span class="dot">✦</span>
+    <span>pH Balanced</span><span class="dot">✦</span>
+  </div>
+</div>
+
+<!-- PRODUCTS -->
+<section id="products">
+  <div class="products-header fade-up">
+    <div>
+      <div class="section-label">Our Collection</div>
+      <h2 class="section-heading">Made for <em>every hand</em><br>in your home</h2>
+    </div>
+    <div class="cat-tabs">
+      <button class="cat-tab active" data-filter="all">All</button>
+      <button class="cat-tab" data-filter="sanitizer">Sanitizers</button>
+      <button class="cat-tab" data-filter="cream">Hand Creams</button>
+      <button class="cat-tab" data-filter="bundle">Bundles</button>
+    </div>
+  </div>
+
+  <div class="products-grid" id="productGrid">
+
+    <!-- SANITIZER 1 -->
+    <div class="product-card show" data-cat="sanitizer" style="animation-delay:.05s">
+      <div class="product-img-wrap" style="background: #f0f8f0;">
+        <div class="product-tag">Bestseller</div>
+        <img src="sanitizer.png" style="width:80%; height:80%; object-fit:contain; filter:drop-shadow(0 20px 40px rgba(0,0,0,0.15));">
+      </div>
+      <div class="product-info">
+        <div class="product-category">Hand Sanitizer</div>
+        <div class="product-name">Aloe & Green Tea</div>
+        <div class="product-desc">Kills 99.9% germs with a refreshing burst of green tea and soothing aloe vera extract.</div>
+        <div class="product-ingredients">
+          <span class="ing-tag"><span class="ing-tag-icon">🌿</span>Aloe Vera</span>
+          <span class="ing-tag"><span class="ing-tag-icon">🍵</span>Green Tea</span>
+          <span class="ing-tag"><span class="ing-tag-icon">💧</span>Ethanol 70%</span>
+        </div>
+        <div class="product-variants">
+          <div class="variant-dot active" style="background:#7ab87f;" title="Green Tea"></div>
+          <div class="variant-dot" style="background:#a8c5aa;" title="Mint"></div>
+          <div class="variant-dot" style="background:#c4dfc4;" title="Cucumber"></div>
+        </div>
+        <div class="product-footer">
+          <div class="product-price">₹149 <small>/ 100ml</small></div>
+          <button class="add-btn" onclick="addToCart(this)">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- SANITIZER 2 -->
+    <div class="product-card show" data-cat="sanitizer" style="animation-delay:.1s">
+      <div class="product-img-wrap" style="background: linear-gradient(145deg, #e8e0f4, #f4f0fc);">
+        <svg viewBox="0 0 140 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect x="38" y="40" width="64" height="130" rx="18" fill="url(#p2a)"/>
+          <rect x="54" y="22" width="32" height="24" rx="8" fill="#7c5cbf"/>
+          <rect x="60" y="12" width="20" height="14" rx="5" fill="#6345a8"/>
+          <rect x="46" y="80" width="48" height="2.5" rx="1.25" fill="rgba(255,255,255,0.45)"/>
+          <text x="70" y="118" font-family="Georgia,serif" font-size="13" fill="white" text-anchor="middle" font-weight="600">PURA</text>
+          <text x="70" y="133" font-family="Arial,sans-serif" font-size="7" fill="rgba(255,255,255,0.75)" text-anchor="middle" letter-spacing="2">SANITIZER</text>
+          <text x="70" y="148" font-family="Arial,sans-serif" font-size="6" fill="rgba(255,255,255,0.55)" text-anchor="middle">Lavender + Rose</text>
+          <circle cx="58" cy="158" r="5" fill="rgba(255,255,255,0.12)"/>
+          <circle cx="70" cy="163" r="4" fill="rgba(255,255,255,0.1)"/>
+          <circle cx="82" cy="157" r="5" fill="rgba(255,255,255,0.12)"/>
+          <defs><linearGradient id="p2a" x1="38" y1="40" x2="102" y2="170" gradientUnits="userSpaceOnUse"><stop stop-color="#9b7ed4"/><stop offset="1" stop-color="#6345a8"/></linearGradient></defs>
+        </svg>
+      </div>
+      <div class="product-info">
+        <div class="product-category">Hand Sanitizer</div>
+        <div class="product-name">Lavender & Rose</div>
+        <div class="product-desc">A calming floral blend that sanitizes deeply while leaving hands smelling like a garden.</div>
+        <div class="product-ingredients">
+          <span class="ing-tag"><span class="ing-tag-icon">💜</span>Lavender Oil</span>
+          <span class="ing-tag"><span class="ing-tag-icon">🌹</span>Rose Water</span>
+          <span class="ing-tag"><span class="ing-tag-icon">💧</span>Ethanol 70%</span>
+        </div>
+        <div class="product-variants">
+          <div class="variant-dot active" style="background:#9b7ed4;" title="Lavender"></div>
+          <div class="variant-dot" style="background:#e8b0c4;" title="Rose"></div>
+        </div>
+        <div class="product-footer">
+          <div class="product-price">₹149 <small>/ 100ml</small></div>
+          <button class="add-btn" onclick="addToCart(this)">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- SANITIZER 3 -->
+    <div class="product-card show" data-cat="sanitizer" style="animation-delay:.15s">
+      <div class="product-img-wrap" style="background: linear-gradient(145deg, #fce8d4, #fff5ed);">
+        <div class="product-tag">New</div>
+        <svg viewBox="0 0 140 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect x="38" y="40" width="64" height="130" rx="18" fill="url(#p3a)"/>
+          <rect x="54" y="22" width="32" height="24" rx="8" fill="#c87941"/>
+          <rect x="60" y="12" width="20" height="14" rx="5" fill="#a85f2e"/>
+          <rect x="46" y="80" width="48" height="2.5" rx="1.25" fill="rgba(255,255,255,0.45)"/>
+          <text x="70" y="118" font-family="Georgia,serif" font-size="13" fill="white" text-anchor="middle" font-weight="600">PURA</text>
+          <text x="70" y="133" font-family="Arial,sans-serif" font-size="7" fill="rgba(255,255,255,0.75)" text-anchor="middle" letter-spacing="2">SANITIZER</text>
+          <text x="70" y="148" font-family="Arial,sans-serif" font-size="6" fill="rgba(255,255,255,0.55)" text-anchor="middle">Citrus + Vitamin E</text>
+          <defs><linearGradient id="p3a" x1="38" y1="40" x2="102" y2="170" gradientUnits="userSpaceOnUse"><stop stop-color="#e8944a"/><stop offset="1" stop-color="#c87941"/></linearGradient></defs>
+        </svg>
+      </div>
+      <div class="product-info">
+        <div class="product-category">Hand Sanitizer</div>
+        <div class="product-name">Citrus & Vitamin E</div>
+        <div class="product-desc">Zesty citrus energy paired with Vitamin E — protection that nourishes as it cleanses.</div>
+        <div class="product-ingredients">
+          <span class="ing-tag"><span class="ing-tag-icon">🍋</span>Citrus Extract</span>
+          <span class="ing-tag"><span class="ing-tag-icon">✨</span>Vitamin E</span>
+          <span class="ing-tag"><span class="ing-tag-icon">💧</span>Ethanol 70%</span>
+        </div>
+        <div class="product-variants">
+          <div class="variant-dot active" style="background:#e8944a;" title="Citrus"></div>
+          <div class="variant-dot" style="background:#f0c060;" title="Lemon"></div>
+          <div class="variant-dot" style="background:#f4a830;" title="Orange"></div>
+        </div>
+        <div class="product-footer">
+          <div class="product-price">₹169 <small>/ 100ml</small></div>
+          <button class="add-btn" onclick="addToCart(this)">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- HAND CREAM 1 -->
+    <div class="product-card show" data-cat="cream" style="animation-delay:.2s">
+      <div class="product-img-wrap" style="background: #fdf6ee;">
+        <div class="product-tag">Top Rated</div>
+        <img src="cream.png" style="width:80%; height:80%; object-fit:contain; filter:drop-shadow(0 20px 40px rgba(0,0,0,0.15));">
+      </div>
+      <div class="product-info">
+        <div class="product-category">Moisturizing Hand Cream</div>
+        <div class="product-name">Shea & Raw Honey</div>
+        <div class="product-desc">Deep moisturizing formula with shea butter and raw honey. Repairs dry, cracked skin overnight.</div>
+        <div class="product-ingredients">
+          <span class="ing-tag"><span class="ing-tag-icon">🫚</span>Shea Butter</span>
+          <span class="ing-tag"><span class="ing-tag-icon">🍯</span>Raw Honey</span>
+          <span class="ing-tag"><span class="ing-tag-icon">🌿</span>Aloe Vera</span>
+        </div>
+        <div class="product-variants">
+          <div class="variant-dot active" style="background:#e8b88a;" title="Original"></div>
+          <div class="variant-dot" style="background:#f4d4a4;" title="Light"></div>
+        </div>
+        <div class="product-footer">
+          <div class="product-price">₹199 <small>/ 75ml</small></div>
+          <button class="add-btn" onclick="addToCart(this)">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- HAND CREAM 2 -->
+    <div class="product-card show" data-cat="cream" style="animation-delay:.25s">
+      <div class="product-img-wrap" style="background: linear-gradient(145deg, #dff0f4, #eef8fb);">
+        <svg viewBox="0 0 140 180" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <ellipse cx="70" cy="140" rx="42" ry="28" fill="url(#pc2b)"/>
+          <rect x="46" y="38" width="48" height="108" rx="24" fill="url(#pc2a)"/>
+          <rect x="58" y="26" width="24" height="18" rx="7" fill="#5aa0b8"/>
+          <rect x="63" y="16" width="14" height="14" rx="4" fill="#3d8a9e"/>
+          <rect x="52" y="78" width="36" height="2" rx="1" fill="rgba(255,255,255,0.45)"/>
+          <text x="70" y="105" font-family="Georgia,serif" font-size="11" fill="white" text-anchor="middle" font-weight="600">PURA</text>
+          <text x="70" y="119" font-family="Arial,sans-serif" font-size="5.5" fill="rgba(255,255,255,0.7)" text-anchor="middle" letter-spacing="1.5">HAND CREAM</text>
+          <text x="70" y="131" font-family="Arial,sans-serif" font-size="5" fill="rgba(255,255,255,0.55)" text-anchor="middle">Collagen + Hyaluronic</text>
+          <defs>
+            <linearGradient id="pc2a" x1="46" y1="38" x2="94" y2="146" gradientUnits="userSpaceOnUse"><stop stop-color="#70c8e0"/><stop offset="1" stop-color="#3d8a9e"/></linearGradient>
+            <linearGradient id="pc2b" x1="28" y1="120" x2="112" y2="168" gradientUnits="userSpaceOnUse"><stop stop-color="#5aa0b8"/><stop offset="1" stop-color="#3d8a9e"/></linearGradient>
+          </defs>
+        </svg>
+      </div>
+      <div class="product-info">
+        <div class="product-category">Moisturizing Hand Cream</div>
+        <div class="product-name">Collagen & Hyaluronic</div>
+        <div class="product-desc">Advanced anti-aging formula with collagen peptides and hyaluronic acid for plump, youthful hands.</div>
+        <div class="product-ingredients">
+          <span class="ing-tag"><span class="ing-tag-icon">🧬</span>Collagen Peptides</span>
+          <span class="ing-tag"><span class="ing-tag-icon">💧</span>Hyaluronic Acid</span>
+          <span class="ing-tag"><span class="ing-tag-icon">✨</span>Vitamin C</span>
+        </div>
+        <div class="product-variants">
+          <div class="variant-dot active" style="background:#70c8e0;" title="Classic"></div>
+          <div class="variant-dot" style="background:#a8e0f0;" title="Light"></div>
+        </div>
+        <div class="product-footer">
+          <div class="product-price">₹249 <small>/ 75ml</small></div>
+          <button class="add-btn" onclick="addToCart(this)">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- HAND CREAM 3 -->
+    <div class="product-card show" data-cat="cream" style="animation-delay:.3s">
+      <div class="product-img-wrap" style="background: linear-gradient(145deg, #ffe8ec, #fff4f6);">
+        <svg viewBox="0 0 140 180" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <ellipse cx="70" cy="140" rx="42" ry="28" fill="url(#pc3b)"/>
+          <rect x="46" y="38" width="48" height="108" rx="24" fill="url(#pc3a)"/>
+          <rect x="58" y="26" width="24" height="18" rx="7" fill="#d4707a"/>
+          <rect x="63" y="16" width="14" height="14" rx="4" fill="#b85060"/>
+          <rect x="52" y="78" width="36" height="2" rx="1" fill="rgba(255,255,255,0.45)"/>
+          <text x="70" y="105" font-family="Georgia,serif" font-size="11" fill="white" text-anchor="middle" font-weight="600">PURA</text>
+          <text x="70" y="119" font-family="Arial,sans-serif" font-size="5.5" fill="rgba(255,255,255,0.7)" text-anchor="middle" letter-spacing="1.5">HAND CREAM</text>
+          <text x="70" y="131" font-family="Arial,sans-serif" font-size="5" fill="rgba(255,255,255,0.55)" text-anchor="middle">Rose + Argan Oil</text>
+          <defs>
+            <linearGradient id="pc3a" x1="46" y1="38" x2="94" y2="146" gradientUnits="userSpaceOnUse"><stop stop-color="#f09098"/><stop offset="1" stop-color="#d4707a"/></linearGradient>
+            <linearGradient id="pc3b" x1="28" y1="120" x2="112" y2="168" gradientUnits="userSpaceOnUse"><stop stop-color="#d4707a"/><stop offset="1" stop-color="#b85060"/></linearGradient>
+          </defs>
+        </svg>
+      </div>
+      <div class="product-info">
+        <div class="product-category">Moisturizing Hand Cream</div>
+        <div class="product-name">Rose & Argan Oil</div>
+        <div class="product-desc">Luxuriously rich formula with Moroccan argan oil and rose extract. Intensely nourishing for very dry hands.</div>
+        <div class="product-ingredients">
+          <span class="ing-tag"><span class="ing-tag-icon">🌹</span>Rose Extract</span>
+          <span class="ing-tag"><span class="ing-tag-icon">🫚</span>Argan Oil</span>
+          <span class="ing-tag"><span class="ing-tag-icon">🍯</span>Jojoba Oil</span>
+        </div>
+        <div class="product-variants">
+          <div class="variant-dot active" style="background:#f09098;" title="Rose"></div>
+          <div class="variant-dot" style="background:#c4a882;" title="Argan"></div>
+        </div>
+        <div class="product-footer">
+          <div class="product-price">₹229 <small>/ 75ml</small></div>
+          <button class="add-btn" onclick="addToCart(this)">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- BUNDLE -->
+    <div class="product-card show" data-cat="bundle" style="animation-delay:.35s">
+      <div class="product-img-wrap" style="background: #f4faf4; position:relative;">
+        <div class="product-tag" style="background:var(--earth-dark);">Save 20%</div>
+        <img src="budle.png" style="width:80%; height:80%; object-fit:contain; filter:drop-shadow(0 20px 40px rgba(0,0,0,0.15));">
+      </div>
+      <div class="product-info">
+        <div class="product-category">Bundle · Best Value</div>
+        <div class="product-name">The Clean Hands Duo</div>
+        <div class="product-desc">Sanitizer + Moisturizing Cream together — sanitize, then restore. The perfect daily hand care ritual.</div>
+        <div class="product-footer">
+          <div class="product-price">₹299 <small><s style="opacity:.5">₹348</s></small></div>
+          <button class="add-btn" onclick="addToCart(this)">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- BUNDLE 2 -->
+    <div class="product-card show" data-cat="bundle" style="animation-delay:.4s">
+      <div class="product-img-wrap" style="background: linear-gradient(145deg, #f0e8f4, #faf4fc);">
+        <div class="product-tag" style="background:var(--earth-dark);">Save 25%</div>
+        <svg viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect x="15" y="45" width="46" height="100" rx="12" fill="url(#bb1)"/>
+          <rect x="26" y="30" width="24" height="18" rx="5" fill="#5d8f62"/>
+          <text x="38" y="100" font-family="Georgia,serif" font-size="8" fill="white" text-anchor="middle" font-weight="600">PURA</text>
+          <rect x="78" y="38" width="52" height="115" rx="20" fill="url(#bb2)"/>
+          <rect x="92" y="26" width="24" height="18" rx="5" fill="#9b7ed4"/>
+          <text x="104" y="103" font-family="Georgia,serif" font-size="8" fill="white" text-anchor="middle" font-weight="600">PURA</text>
+          <rect x="148" y="52" width="42" height="95" rx="12" fill="url(#bb3)"/>
+          <rect x="158" y="40" width="22" height="16" rx="5" fill="#b8946a"/>
+          <text x="169" y="103" font-family="Georgia,serif" font-size="7" fill="white" text-anchor="middle" font-weight="600">PURA</text>
+          <defs>
+            <linearGradient id="bb1" x1="15" y1="45" x2="61" y2="145" gradientUnits="userSpaceOnUse"><stop stop-color="#7ab87f"/><stop offset="1" stop-color="#3d6b42"/></linearGradient>
+            <linearGradient id="bb2" x1="78" y1="38" x2="130" y2="153" gradientUnits="userSpaceOnUse"><stop stop-color="#b09ae0"/><stop offset="1" stop-color="#7c5cbf"/></linearGradient>
+            <linearGradient id="bb3" x1="148" y1="52" x2="190" y2="147" gradientUnits="userSpaceOnUse"><stop stop-color="#e8b88a"/><stop offset="1" stop-color="#c49060"/></linearGradient>
+          </defs>
+        </svg>
+      </div>
+      <div class="product-info">
+        <div class="product-category">Bundle · Family Pack</div>
+        <div class="product-name">Family Care Trio</div>
+        <div class="product-desc">3 products: Green Tea Sanitizer + Lavender Sanitizer + Shea Hand Cream. Everything a family needs.</div>
+        <div class="product-footer">
+          <div class="product-price">₹399 <small><s style="opacity:.5">₹497</s></small></div>
+          <button class="add-btn" onclick="addToCart(this)">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- INGREDIENTS -->
+<section id="ingredients">
+  <div class="ingredients-inner">
+    <div class="ing-heading fade-up">
+      <div class="section-label">What's Inside</div>
+      <h2 class="section-heading">Pure <em>ingredients,</em><br>honest formula</h2>
+      <p class="ing-sub">Every ingredient is chosen for a reason. Nothing synthetic, nothing harmful — just nature's finest, scientifically optimised for your family's skin.</p>
+    </div>
+    <div class="ingredients-list">
+      <div class="ing-card fade-up delay-100">
+        <div class="ing-icon">🌿</div>
+        <div class="ing-name">Aloe Vera Extract</div>
+        <div class="ing-desc">Soothes and hydrates while actively fighting bacteria. Nature's own hand healer.</div>
+      </div>
+      <div class="ing-card fade-up delay-200">
+        <div class="ing-icon">🍯</div>
+        <div class="ing-name">Raw Honey</div>
+        <div class="ing-desc">Natural humectant with antibacterial properties — locks moisture into skin cells.</div>
+      </div>
+      <div class="ing-card fade-up delay-100">
+        <div class="ing-icon">🫚</div>
+        <div class="ing-name">Shea Butter</div>
+        <div class="ing-desc">Rich in vitamins A and E. Repairs the skin barrier and prevents dryness.</div>
+      </div>
+      <div class="ing-card fade-up delay-200">
+        <div class="ing-icon">🍵</div>
+        <div class="ing-name">Green Tea</div>
+        <div class="ing-desc">Powerful antioxidant that neutralises free radicals and reduces inflammation.</div>
+      </div>
+      <div class="ing-card fade-up delay-300">
+        <div class="ing-icon">🌹</div>
+        <div class="ing-name">Argan Oil</div>
+        <div class="ing-desc">Moroccan liquid gold. Intensely nourishing for dry, sensitive skin.</div>
+      </div>
+      <div class="ing-card fade-up delay-400">
+        <div class="ing-icon">💧</div>
+        <div class="ing-name">Hyaluronic Acid</div>
+        <div class="ing-desc">Holds 1000× its weight in water. Keeps hands plump and deeply moisturised.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- WHY US -->
+<section id="why">
+  <div class="why-header fade-up">
+    <div class="section-label">Our Promise</div>
+    <h2 class="section-heading">Why families choose <em>Pura</em></h2>
+  </div>
+  <div class="why-grid">
+    <div class="why-card fade-up delay-100">
+      <div class="why-num">01</div>
+      <div class="why-title">99.9% Germ Protection</div>
+      <div class="why-desc">Clinically proven formula eliminates 99.9% of common bacteria and viruses — safe for kids and adults alike.</div>
+    </div>
+    <div class="why-card fade-up delay-200">
+      <div class="why-num">02</div>
+      <div class="why-title">No Harsh Chemicals</div>
+      <div class="why-desc">Zero parabens, zero sulphates, zero artificial colours. Everything you see on the label is what goes on your skin.</div>
+    </div>
+    <div class="why-card fade-up delay-300">
+      <div class="why-num">03</div>
+      <div class="why-title">Dermatologist Tested</div>
+      <div class="why-desc">Formulated with dermatologists and tested on sensitive skin. Approved for daily use by the entire family.</div>
+    </div>
+    <div class="why-card fade-up delay-100">
+      <div class="why-num">04</div>
+      <div class="why-title">pH Balanced Formula</div>
+      <div class="why-desc">Maintains your skin's natural pH level, so your hands stay healthy, soft, and protected wash after wash.</div>
+    </div>
+    <div class="why-card fade-up delay-200">
+      <div class="why-num">05</div>
+      <div class="why-title">Eco-Conscious Packaging</div>
+      <div class="why-desc">Recyclable materials, soy-based inks, and a refill programme that helps reduce plastic waste by 70%.</div>
+    </div>
+    <div class="why-card fade-up delay-300">
+      <div class="why-num">06</div>
+      <div class="why-title">Cruelty Free · Vegan</div>
+      <div class="why-desc">100% vegan ingredients. Never tested on animals. Certified by international cruelty-free organisations.</div>
+    </div>
+  </div>
+</section>
+
+<!-- TESTIMONIALS -->
+<section id="testimonials">
+  <div class="testi-inner">
+    <div class="testi-header fade-up">
+      <div class="section-label">Real Families · Real Results</div>
+      <h2 class="section-heading">What they're <em>saying</em></h2>
+    </div>
+    <div class="testi-grid">
+      <div class="testi-card fade-up delay-100">
+        <div class="testi-stars">★★★★★</div>
+        <div class="testi-quote">"I finally found a sanitizer that doesn't make my kids' hands crack and peel. The Aloe & Green Tea variant is incredible — smells fresh, feels gentle."</div>
+        <div class="testi-author">
+          <div class="testi-avatar" style="background: linear-gradient(135deg, #7ab87f, #4a6b4e);">P</div>
+          <div>
+            <div class="testi-name">Priya Sharma</div>
+            <div class="testi-location">Mumbai · Mother of 2</div>
+          </div>
+        </div>
+      </div>
+      <div class="testi-card fade-up delay-200">
+        <div class="testi-stars">★★★★★</div>
+        <div class="testi-quote">"The Shea & Honey cream is a miracle. My husband uses the sanitizer at work all day and his hands were so dry — now he uses the cream at night and the difference is unreal."</div>
+        <div class="testi-author">
+          <div class="testi-avatar" style="background: linear-gradient(135deg, #e8b88a, #c49060);">A</div>
+          <div>
+            <div class="testi-name">Ananya Verma</div>
+            <div class="testi-location">Pune · Healthcare Professional</div>
+          </div>
+        </div>
+      </div>
+      <div class="testi-card fade-up delay-300">
+        <div class="testi-stars">★★★★★</div>
+        <div class="testi-quote">"Ordered the Family Trio for my parents. My father has very sensitive skin and was skeptical, but he's been using it for 3 months and absolutely loves it now. Worth every rupee."</div>
+        <div class="testi-author">
+          <div class="testi-avatar" style="background: linear-gradient(135deg, #9b7ed4, #6345a8);">R</div>
+          <div>
+            <div class="testi-name">Rahul Gupta</div>
+            <div class="testi-location">Delhi · Engineering Professional</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section id="how-it-works">
+  <div class="how-inner">
+    <div class="how-header fade-up">
+      <div class="section-label">Product Process Flow</div>
+      <h2 class="section-heading">From nature to <em>your hands</em></h2>
+      <p>Select a product to see its full ingredient-to-benefit process flow.</p>
+    </div>
+
+    <!-- Product selector tabs -->
+    <div class="pf-tabs fade-up delay-100">
+      <button class="pf-tab active" data-pf="aloe">🌿 Aloe & Green Tea</button>
+      <button class="pf-tab" data-pf="lavender">💜 Lavender & Rose</button>
+      <button class="pf-tab" data-pf="citrus">🍋 Citrus & Vitamin E</button>
+      <button class="pf-tab" data-pf="shea">🍯 Shea & Honey</button>
+      <button class="pf-tab" data-pf="collagen">🧬 Collagen & Hyaluronic</button>
+      <button class="pf-tab" data-pf="rose">🌸 Rose & Argan Oil</button>
+    </div>
+
+    <!-- ── ALOE & GREEN TEA ── -->
+    <div class="pf-panel active" id="pf-aloe">
+      <div class="pf-sources">
+        <div class="pf-source-chip"><span>🌿</span> Aloe Vera — Sourced from organic farms</div>
+        <div class="pf-source-chip"><span>🍵</span> Green Tea — Cold-extracted antioxidants</div>
+        <div class="pf-source-chip"><span>💧</span> Ethanol 70% — Pharmaceutical grade</div>
+        <div class="pf-source-chip"><span>🫧</span> Glycerin — Plant-derived humectant</div>
+      </div>
+      <div class="pf-flow">
+        <div class="pf-node">
+          <div class="pf-node-icon" style="background:linear-gradient(135deg,#d4ecd5,#7ab87f)">🌱</div>
+          <div class="pf-node-label">Step 1</div>
+          <div class="pf-node-title">Harvest</div>
+          <div class="pf-node-desc">Aloe leaves & green tea leaves ethically sourced</div>
+        </div>
+        <div class="pf-arrow"><svg viewBox="0 0 28 28" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="14" x2="24" y2="14"/><polyline points="17 7 24 14 17 21"/></svg></div>
+        <div class="pf-node">
+          <div class="pf-node-icon" style="background:linear-gradient(135deg,#c8e8c8,#4a8f50)">🔬</div>
+          <div class="pf-node-label">Step 2</div>
+          <div class="pf-node-title">Extract</div>
+          <div class="pf-node-desc">Cold-press aloe gel + steam-distill green tea catechins</div>
+        </div>
+        <div class="pf-arrow"><svg viewBox="0 0 28 28" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="14" x2="24" y2="14"/><polyline points="17 7 24 14 17 21"/></svg></div>
+        <div class="pf-node">
+          <div class="pf-node-icon" style="background:linear-gradient(135deg,#b8d8b8,#3d6b42)">⚗️</div>
+          <div class="pf-node-label">Step 3</div>
+          <div class="pf-node-title">Blend</div>
+          <div class="pf-node-desc">Mix with ethanol 70% + glycerin at controlled pH 6.5</div>
+        </div>
+        <div class="pf-arrow"><svg viewBox="0 0 28 28" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="14" x2="24" y2="14"/><polyline points="17 7 24 14 17 21"/></svg></div>
+        <div class="pf-node">
+          <div class="pf-node-icon" style="background:linear-gradient(135deg,#a8c5aa,#4a6b4e)">🤲</div>
+          <div class="pf-node-label">Result</div>
+          <div class="pf-node-title">Sanitize & Soothe</div>
+          <div class="pf-node-desc">Kills 99.9% germs while aloe hydrates & green tea protects</div>
+        </div>
+      </div>
+      <div class="pf-result">
+        <div class="pf-result-icon">✅</div>
+        <div>
+          <div class="pf-result-label">Final Product Benefit</div>
+          <div class="pf-result-text">Kills 99.9% germs · Soothes with aloe · Antioxidant protection · No dry-out effect</div>
+        </div>
+        <div class="pf-result-stats">
+          <div class="pf-stat"><div class="pf-stat-val">99.9%</div><div class="pf-stat-lbl">Germ Kill</div></div>
+          <div class="pf-stat"><div class="pf-stat-val">pH 6.5</div><div class="pf-stat-lbl">Skin Safe</div></div>
+          <div class="pf-stat"><div class="pf-stat-val">100%</div><div class="pf-stat-lbl">Natural Origin</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── LAVENDER & ROSE ── -->
+    <div class="pf-panel" id="pf-lavender">
+      <div class="pf-sources">
+        <div class="pf-source-chip"><span>💜</span> Lavender Oil — Steam-distilled from Provence</div>
+        <div class="pf-source-chip"><span>🌹</span> Rose Water — Bulgarian rose hydrosol</div>
+        <div class="pf-source-chip"><span>💧</span> Ethanol 70% — Pharmaceutical grade</div>
+        <div class="pf-source-chip"><span>🫧</span> Glycerin — Plant-derived humectant</div>
+      </div>
+      <div class="pf-flow">
+        <div class="pf-node">
+          <div class="pf-node-icon" style="background:linear-gradient(135deg,#e8e0f4,#9b7ed4)">🌸</div>
+          <div class="pf-node-label">Step 1</div>
+          <div class="pf-node-title">Harvest</div>
+          <div class="pf-node-desc">Lavender & rose petals hand-picked at peak bloom</div>
+        </div>
+        <div class="pf-arrow"><svg viewBox="0 0 28 28" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="14" x2="24" y2="14"/><polyline points="17 7 24 14 17 21"/></svg></div>
+        <div class="pf-node">
+          <div class="pf-node-icon" style="background:linear-gradient(135deg,#d8c8f0,#7c5cbf)">🔬</div>
+          <div class="pf-node-label">Step 2</div>
+          <div class="pf-node-title">Distill</div>
+          <div class="pf-node-desc">Steam distillation captures pure essential oils & hydrosol</div>
+        </div>
+        <div class="pf-arrow"><svg viewBox="0 0 28 28" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="14" x2="24" y2="14"/><polyline points="17 7 24 14 17 21"/></svg></div>
+        <div class="pf-node">
+          <div class="pf-node-icon" style="background:linear-gradient(135deg,#c8b0e8,#6345a8)">⚗️</div>
+          <div class="pf-node-label">Step 3</div>
+          <div class="pf-node-title">Blend</div>
+          <div class="pf-node-desc">Infused into ethanol base with rose water & glycerin</div>
+        </div>
+        <div class="pf-arrow"><svg viewBox="0 0 28 28" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="14" x2="24" y2="14"/><polyline points="17 7 24 14 17 21"/></svg></div>
+        <div class="pf-node">
+          <div class="pf-node-icon" style="background:linear-gradient(135deg,#b0a0d8,#4a3090)">🤲</div>
+          <div class="pf-node-label">Result</div>
+          <div class="pf-node-title">Sanitize & Calm</div>
+          <div class="pf-node-desc">Kills germs while lavender calms & rose tones skin</div>
+        </div>
+      </div>
+      <div class="pf-result">
+        <div class="pf-result-icon">✅</div>
+        <div>
+          <div class="pf-result-label">Final Product Benefit</div>
+          <div class="pf-result-text">Kills 99.9% germs · Calming lavender aroma · Rose water tones skin · Stress-relief scent</div>
+        </div>
+        <div class="pf-result-stats">
+          <div class="pf-stat"><div class="pf-stat-val">99.9%</div><div class="pf-stat-lbl">Germ Kill</div></div>
+          <div class="pf-stat"><div class="pf-stat-val">2-in-1</div><div class="pf-stat-lbl">Sanitize + Tone</div></div>
+          <div class="pf-stat"><div class="pf-stat-val">0%</div><div class="pf-stat-lbl">Parabens</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── CITRUS & VITAMIN E ── -->
+    <div class="pf-panel" id="pf-citrus">
+      <div class="pf-sources">
+        <div class="pf-source-chip"><span>🍋</span> Citrus Extract — Cold-pressed lemon & orange peel</div>
+        <div class="pf-source-chip"><span>✨</span> Vitamin E — Tocopherol from sunflower oil</div>
+        <div class="pf-source-chip"><span>💧</span> Ethanol 70% — Pharmaceutical grade</div>
+        <div class="pf-source-chip"><span>🫧</span> Glycerin — Plant-derived humectant</div>
+      </div>
+      <div class="pf-flow">
+        <div class="pf-node">
+          <div class="pf-node-icon" style="background:linear-gradient(135deg,#fce8d4,#e8944a)">🍊</div>
+          <div class="pf-node-label">Step 1</div>
+          <div class="pf-node-title">Press</div>
+          <div class="pf-node-desc">Cold-press citrus peels to extract bioflavonoids</div>
+        </div>
+        <div class="pf-arrow"><svg viewBox="0 0 28 28" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="14" x2="24" y2="14"/><polyline points="17 7 24 14 17 21"/></svg></div>
+        <div class="pf-node">
+          <div class="pf-node-icon" style="background:linear-gradient(135deg,#f8d8b0,#c87941)">🔬</div>
+          <div class="pf-node-label">Step 2</div>
+          <div class="pf-node-title">Enrich</div>
+          <div class="pf-node-desc">Vitamin E tocopherol added as antioxidant booster</div>
+        </div>
+        <div class="pf-arrow"><svg viewBox="0 0 28 28" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="14" x2="24" y2="14"/><polyline points="17 7 24 14 17 21"/></svg></div>
+        <div class="pf-node">
+          <div class="pf-node-icon" style="background:linear-gradient(135deg,#f0c060,#a85f2e)">⚗️</div>
+          <div class="pf-node-label">Step 3</div>
+          <div class="pf-node-title">Blend</div>
+          <div class="pf-node-desc">Combined with ethanol base at optimal concentration</div>
+        </div>
+        <div class="pf-arrow"><svg viewBox="0 0 28 28" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="14" x2="24" y2="14"/><polyline points="17 7 24 14 17 21"/></svg></div>
+        <div class="pf-node">
+          <div class="pf-node-icon" style="background:linear-gradient(135deg,#e8a050,#8b4010)">🤲</div>
+          <div class="pf-node-label">Result</div>
+          <div class="pf-node-title">Sanitize & Brighten</div>
+          <div class="pf-node-desc">Kills germs, Vitamin E repairs & citrus brightens skin tone</div>
+        </div>
+      </div>
+      <div class="pf-result">
+        <div class="pf-result-icon">✅</div>
+        <div>
+          <div class="pf-result-label">Final Product Benefit</div>
+          <div class="pf-result-text">Kills 99.9% germs · Vitamin E repairs skin · Citrus brightens · Energising scent</div>
+        </div>
+        <div class="pf-result-stats">
+          <div class="pf-stat"><div class="pf-stat-val">99.9%</div><div class="pf-stat-lbl">Germ Kill</div></div>
+          <div class="pf-stat"><div class="pf-stat-val">Vit E</div><div class="pf-stat-lbl">Skin Repair</div></div>
+          <div class="pf-stat"><div class="pf-stat-val">0%</div><div class="pf-stat-lbl">Sulphates</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── SHEA & HONEY ── -->
+    <div class="pf-panel" id="pf-shea">
+      <div class="pf-sources">
+        <div class="pf-source-chip"><span>🫚</span> Shea Butter — Unrefined, West African origin</div>
+        <div class="pf-source-chip"><span>🍯</span> Raw Honey — Wildflower, cold-processed</div>
+        <div class="pf-source-chip"><span>🌿</span> Aloe Vera — Organic cold-pressed gel</div>
+        <div class="pf-source-chip"><span>✨</span> Vitamins A & E — Natural tocopherols</div>
+      </div>
+      <div class="pf-flow">
+        <div class="pf-node">
+          <div class="pf-node-icon" style="background:linear-gradient(135deg,#f8ede0,#e8b88a)">🌰</div>
+          <div class="pf-node-label">Step 1</div>
+          <div class="pf-node-title">Source</div>
+          <div class="pf-node-desc">Unrefined shea nuts cold-pressed, raw honey cold-processed</div>
+        </div>
+        <div class="pf-arrow"><svg viewBox="0 0 28 28" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="14" x2="24" y2="14"/><polyline points="17 7 24 14 17 21"/></svg></div>
+        <div class="pf-node">
+          <div class="pf-node-icon" style="background:linear-gradient(135deg,#f0d8b0,#c49060)">🔬</div>
+          <div class="pf-node-label">Step 2</div>
+          <div class="pf-node-title">Refine</div>
+          <div class="pf-node-desc">Shea emulsified, honey filtered to retain enzymes & nutrients</div>
+        </div>
+        <div class="pf-arrow"><svg viewBox="0 0 28 28" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="14" x2="24" y2="14"/><polyline points="17 7 24 14 17 21"/></svg></div>
+        <div class="pf-node">
+          <div class="pf-node-icon" style="background:linear-gradient(135deg,#e8c890,#9a7040)">⚗️</div>
+          <div class="pf-node-label">Step 3</div>
+          <div class="pf-node-title">Formulate</div>
+          <div class="pf-node-desc">Blended with aloe gel + vitamins A & E at low heat</div>
+        </div>
+        <div class="pf-arrow"><svg viewBox="0 0 28 28" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="14" x2="24" y2="14"/><polyline points="17 7 24 14 17 21"/></svg></div>
+        <div class="pf-node">
+          <div class="pf-node-icon" style="background:linear-gradient(135deg,#d4a870,#704820)">🤲</div>
+          <div class="pf-node-label">Result</div>
+          <div class="pf-node-title">Repair & Moisturise</div>
+          <div class="pf-node-desc">Shea rebuilds barrier, honey locks moisture, aloe soothes</div>
+        </div>
+      </div>
+      <div class="pf-result">
+        <div class="pf-result-icon">✅</div>
+        <div>
+          <div class="pf-result-label">Final Product Benefit</div>
+          <div class="pf-result-text">Repairs dry skin overnight · Locks in moisture · Soothes irritation · Rich in vitamins A & E</div>
+        </div>
+        <div class="pf-result-stats">
+          <div class="pf-stat"><div class="pf-stat-val">72hr</div><div class="pf-stat-lbl">Moisture Lock</div></div>
+          <div class="pf-stat"><div class="pf-stat-val">Vit A+E</div><div class="pf-stat-lbl">Skin Renewal</div></div>
+          <div class="pf-stat"><div class="pf-stat-val">0%</div><div class="pf-stat-lbl">Mineral Oil</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── COLLAGEN & HYALURONIC ── -->
+    <div class="pf-panel" id="pf-collagen">
+      <div class="pf-sources">
+        <div class="pf-source-chip"><span>🧬</span> Collagen Peptides — Marine-derived, hydrolysed</div>
+        <div class="pf-source-chip"><span>💧</span> Hyaluronic Acid — Low & high molecular weight</div>
+        <div class="pf-source-chip"><span>✨</span> Vitamin C — Stabilised ascorbyl glucoside</div>
+        <div class="pf-source-chip"><span>🛡️</span> Ceramides — Plant-derived skin barrier lipids</div>
+      </div>
+      <div class="pf-flow">
+        <div class="pf-node">
+          <div class="pf-node-icon" style="background:linear-gradient(135deg,#dff0f4,#70c8e0)">🧬</div>
+          <div class="pf-node-label">Step 1</div>
+          <div class="pf-node-title">Synthesise</div>
+          <div class="pf-node-desc">Collagen hydrolysed into bioavailable peptides for skin absorption</div>
+        </div>
+        <div class="pf-arrow"><svg viewBox="0 0 28 28" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="14" x2="24" y2="14"/><polyline points="17 7 24 14 17 21"/></svg></div>
+        <div class="pf-node">
+          <div class="pf-node-icon" style="background:linear-gradient(135deg,#c0e4f0,#3d8a9e)">🔬</div>
+          <div class="pf-node-label">Step 2</div>
+          <div class="pf-node-title">Layer</div>
+          <div class="pf-node-desc">Dual-weight HA — high MW seals surface, low MW penetrates deep</div>
+        </div>
+        <div class="pf-arrow"><svg viewBox="0 0 28 28" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="14" x2="24" y2="14"/><polyline points="17 7 24 14 17 21"/></svg></div>
+        <div class="pf-node">
+          <div class="pf-node-icon" style="background:linear-gradient(135deg,#a8d8e8,#2a6878)">⚗️</div>
+          <div class="pf-node-label">Step 3</div>
+          <div class="pf-node-title">Stabilise</div>
+          <div class="pf-node-desc">Vitamin C & ceramides added to stabilise and protect formula</div>
+        </div>
+        <div class="pf-arrow"><svg viewBox="0 0 28 28" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="14" x2="24" y2="14"/><polyline points="17 7 24 14 17 21"/></svg></div>
+        <div class="pf-node">
+          <div class="pf-node-icon" style="background:linear-gradient(135deg,#90c8d8,#1a5060)">🤲</div>
+          <div class="pf-node-label">Result</div>
+          <div class="pf-node-title">Plump & Firm</div>
+          <div class="pf-node-desc">Collagen firms, HA plumps, Vitamin C brightens, ceramides protect</div>
+        </div>
+      </div>
+      <div class="pf-result">
+        <div class="pf-result-icon">✅</div>
+        <div>
+          <div class="pf-result-label">Final Product Benefit</div>
+          <div class="pf-result-text">Firms & plumps skin · Deep hydration · Brightens tone · Restores skin barrier</div>
+        </div>
+        <div class="pf-result-stats">
+          <div class="pf-stat"><div class="pf-stat-val">1000×</div><div class="pf-stat-lbl">HA Water Hold</div></div>
+          <div class="pf-stat"><div class="pf-stat-val">2-MW</div><div class="pf-stat-lbl">Deep Penetration</div></div>
+          <div class="pf-stat"><div class="pf-stat-val">0%</div><div class="pf-stat-lbl">Fragrance</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── ROSE & ARGAN OIL ── -->
+    <div class="pf-panel" id="pf-rose">
+      <div class="pf-sources">
+        <div class="pf-source-chip"><span>🌹</span> Rose Extract — Bulgarian Damascena rose</div>
+        <div class="pf-source-chip"><span>🫚</span> Argan Oil — Cold-pressed Moroccan argan kernels</div>
+        <div class="pf-source-chip"><span>🌰</span> Jojoba Oil — Desert-grown, wax ester rich</div>
+        <div class="pf-source-chip"><span>✨</span> Vitamin E — Natural tocopherol antioxidant</div>
+      </div>
+      <div class="pf-flow">
+        <div class="pf-node">
+          <div class="pf-node-icon" style="background:linear-gradient(135deg,#ffe8ec,#f09098)">🌹</div>
+          <div class="pf-node-label">Step 1</div>
+          <div class="pf-node-title">Extract</div>
+          <div class="pf-node-desc">Rose petals CO₂-extracted to preserve bioactive compounds</div>
+        </div>
+        <div class="pf-arrow"><svg viewBox="0 0 28 28" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="14" x2="24" y2="14"/><polyline points="17 7 24 14 17 21"/></svg></div>
+        <div class="pf-node">
+          <div class="pf-node-icon" style="background:linear-gradient(135deg,#f0c0c4,#d4707a)">🔬</div>
+          <div class="pf-node-label">Step 2</div>
+          <div class="pf-node-title">Press</div>
+          <div class="pf-node-desc">Argan & jojoba cold-pressed to retain fatty acids & sterols</div>
+        </div>
+        <div class="pf-arrow"><svg viewBox="0 0 28 28" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="14" x2="24" y2="14"/><polyline points="17 7 24 14 17 21"/></svg></div>
+        <div class="pf-node">
+          <div class="pf-node-icon" style="background:linear-gradient(135deg,#e0a0a8,#b85060)">⚗️</div>
+          <div class="pf-node-label">Step 3</div>
+          <div class="pf-node-title">Blend</div>
+          <div class="pf-node-desc">Oils emulsified with rose extract + Vitamin E at low temp</div>
+        </div>
+        <div class="pf-arrow"><svg viewBox="0 0 28 28" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="14" x2="24" y2="14"/><polyline points="17 7 24 14 17 21"/></svg></div>
+        <div class="pf-node">
+          <div class="pf-node-icon" style="background:linear-gradient(135deg,#d08090,#903040)">🤲</div>
+          <div class="pf-node-label">Result</div>
+          <div class="pf-node-title">Nourish & Protect</div>
+          <div class="pf-node-desc">Argan nourishes deeply, rose soothes, jojoba balances, Vit E shields</div>
+        </div>
+      </div>
+      <div class="pf-result">
+        <div class="pf-result-icon">✅</div>
+        <div>
+          <div class="pf-result-label">Final Product Benefit</div>
+          <div class="pf-result-text">Intensely nourishes dry skin · Anti-inflammatory rose · Balances oil · Antioxidant shield</div>
+        </div>
+        <div class="pf-result-stats">
+          <div class="pf-stat"><div class="pf-stat-val">80%</div><div class="pf-stat-lbl">Oleic Acid</div></div>
+          <div class="pf-stat"><div class="pf-stat-val">CO₂</div><div class="pf-stat-lbl">Extracted</div></div>
+          <div class="pf-stat"><div class="pf-stat-val">0%</div><div class="pf-stat-lbl">Silicones</div></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+
+
+<!-- CTA BANNER -->
+<div id="cta-banner" class="fade-up">
+  <div class="cta-text">
+    <div class="cta-label">Join 50,000+ families</div>
+    <h2 class="cta-heading">Start your <em>Pura</em><br>ritual today</h2>
+    <p class="cta-sub">First order? Get 15% off + free shipping on orders above ₹299</p>
+  </div>
+  <div class="cta-actions">
+    <div class="email-input-wrap">
+      <input type="email" placeholder="your@email.com">
+      <button>Get 15% Off</button>
+    </div>
+    <div class="cta-note">No spam. Unsubscribe anytime. We care about your privacy.</div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-inner">
+    <div>
+      <div class="footer-brand-name">Pur<span>a</span></div>
+      <div class="footer-tagline">Clean hands. Pure life. Made with love for every family in India and beyond.</div>
+      <div class="footer-socials">
+        <a href="#" class="social-btn">ig</a>
+        <a href="#" class="social-btn">tw</a>
+        <a href="#" class="social-btn">fb</a>
+        <a href="#" class="social-btn">yt</a>
+      </div>
+    </div>
+    <div class="footer-col">
+      <h4>Products</h4>
+      <ul>
+        <li><a href="#">Hand Sanitizers</a></li>
+        <li><a href="#">Hand Creams</a></li>
+        <li><a href="#">Bundles</a></li>
+        <li><a href="#">Refills</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>Company</h4>
+      <ul>
+        <li><a href="#">Our Story</a></li>
+        <li><a href="#">Ingredients</a></li>
+        <li><a href="#">Sustainability</a></li>
+        <li><a href="#">Careers</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>Support</h4>
+      <ul>
+        <li><a href="#">FAQ</a></li>
+        <li><a href="#">Shipping & Returns</a></li>
+        <li><a href="#">Contact Us</a></li>
+        <li><a href="#">Track Order</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>© 2025 Pura Naturals. All rights reserved.</span>
+    <span>Made with 🌿 in India</span>
+  </div>
+</footer>
+
+<script>
+// ── CURSOR ──
+const dot = document.getElementById('cursorDot');
+const ring = document.getElementById('cursorRing');
+let mx = 0, my = 0, rx = 0, ry = 0;
+document.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; });
+function animateCursor() {
+  dot.style.left = mx + 'px'; dot.style.top = my + 'px';
+  rx += (mx - rx) * 0.12; ry += (my - ry) * 0.12;
+  ring.style.left = rx + 'px'; ring.style.top = ry + 'px';
+  requestAnimationFrame(animateCursor);
+}
+animateCursor();
+document.querySelectorAll('a,button,.product-card,.floating-card,.ing-card,.why-card,.testi-card').forEach(el => {
+  el.addEventListener('mouseenter', () => { ring.style.width = '56px'; ring.style.height = '56px'; ring.style.borderColor = 'var(--sage-dark)'; });
+  el.addEventListener('mouseleave', () => { ring.style.width = '36px'; ring.style.height = '36px'; ring.style.borderColor = 'var(--sage)'; });
+});
+
+// ── NAV SCROLL ──
+const navbar = document.getElementById('navbar');
+window.addEventListener('scroll', () => {
+  navbar.classList.toggle('scrolled', window.scrollY > 60);
+  const prog = (window.scrollY / (document.body.scrollHeight - window.innerHeight)) * 100;
+  document.getElementById('scrollBar').style.width = prog + '%';
+});
+
+// ── SCROLL ANIMATIONS ──
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+}, { threshold: 0.12 });
+document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
+
+// ── PRODUCT FILTER TABS ──
+document.querySelectorAll('.cat-tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.cat-tab').forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+    const filter = tab.dataset.filter;
+    document.querySelectorAll('.product-card').forEach(card => {
+      const cat = card.dataset.cat;
+      const show = filter === 'all' || cat === filter;
+      card.classList.toggle('show', show);
+    });
+  });
+});
+
+// ── ADD TO CART ──
+function addToCart(btn) {
+  const toast = document.getElementById('toast');
+  toast.classList.add('show');
+  btn.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>';
+  btn.style.background = 'var(--sage-dark)';
+  setTimeout(() => {
+    toast.classList.remove('show');
+    btn.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>';
+    btn.style.background = '';
+  }, 2200);
+}
+
+// ── 3D TILT ON PRODUCT CARDS ──
+document.querySelectorAll('.product-card').forEach(card => {
+  card.addEventListener('mousemove', e => {
+    const rect = card.getBoundingClientRect();
+    const x = (e.clientX - rect.left) / rect.width - 0.5;
+    const y = (e.clientY - rect.top) / rect.height - 0.5;
+    card.style.transform = `translateY(-12px) rotateX(${-y*12}deg) rotateY(${x*12}deg)`;
+  });
+  card.addEventListener('mouseleave', () => {
+    card.style.transform = '';
+  });
+});
+
+// ── SCROLL TO PRODUCTS ──
+function scrollToProducts() {
+  document.getElementById('products').scrollIntoView({ behavior: 'smooth' });
+}
+
+// ── HERO PARALLAX ──
+window.addEventListener('scroll', () => {
+  const sy = window.scrollY;
+  document.querySelectorAll('.blob').forEach((b, i) => {
+    b.style.transform = `translateY(${sy * (0.08 + i * 0.03)}px)`;
+  });
+});
+
+// ── PRODUCT FLOW TABS ──
+document.querySelectorAll('.pf-tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.pf-tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.pf-panel').forEach(p => p.classList.remove('active'));
+    tab.classList.add('active');
+    document.getElementById('pf-' + tab.dataset.pf).classList.add('active');
+  });
+});
+</script>
+</body>
+</html>
