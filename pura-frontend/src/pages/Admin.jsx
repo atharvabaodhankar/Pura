@@ -40,44 +40,19 @@ export default function Admin() {
 
   const fetchOrders = async () => {
     try {
-      const { data: ordersData, error: ordersError } = await supabase
-        .from('orders')
-        .select('*')
-        .order('created_at', { ascending: false });
+      const { data: { session } } = await supabase.auth.getSession();
+      const token = session?.access_token;
       
-      if (ordersError) throw ordersError;
-
-      if (!ordersData || ordersData.length === 0) {
-        setOrders([]);
-        setLoading(false);
-        return;
-      }
-
-      // Extract unique user_ids to fetch profiles
-      const userIds = [...new Set(ordersData.map(o => o.user_id).filter(Boolean))];
-      
-      let profilesMap = {};
-      if (userIds.length > 0) {
-        const { data: profilesData } = await supabase
-          .from('profiles')
-          .select('id, full_name, email')
-          .in('id', userIds);
-          
-        if (profilesData) {
-          profilesMap = profilesData.reduce((acc, profile) => {
-            acc[profile.id] = profile;
-            return acc;
-          }, {});
+      const res = await fetch('http://localhost:5000/api/orders', {
+        headers: {
+          'Authorization': `Bearer ${token}`
         }
-      }
-
-      // Merge profiles into orders
-      const mergedOrders = ordersData.map(order => ({
-        ...order,
-        profiles: profilesMap[order.user_id] || { full_name: 'Guest', email: '' }
-      }));
-
-      setOrders(mergedOrders);
+      });
+      
+      if (!res.ok) throw new Error('Failed to fetch orders');
+      
+      const ordersData = await res.json();
+      setOrders(ordersData || []);
     } catch (err) {
       console.error("Error fetching orders:", err);
     } finally {
@@ -86,8 +61,27 @@ export default function Admin() {
   };
 
   const updateOrderStatus = async (orderId, status) => {
-    await supabase.from('orders').update({ status }).eq('id', orderId);
-    fetchOrders();
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      const token = session?.access_token;
+      
+      const res = await fetch(`http://localhost:5000/api/orders/${orderId}/status`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ status })
+      });
+      
+      if (res.ok) {
+        fetchOrders();
+      } else {
+        console.error("Failed to update status");
+      }
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   const mapContainerStyle = { width: '100%', height: '500px', borderRadius: '16px' };

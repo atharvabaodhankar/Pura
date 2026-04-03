@@ -73,51 +73,91 @@ export default function Checkout() {
     }
 
     if (cart.length === 0) return;
+    
+    if (!formData.location) {
+      alert("Please pin your exact location on the map.");
+      return;
+    }
 
     setLoading(true);
     try {
-      // 1. Create order
-      const { data: order, error: orderError } = await supabase
-        .from('orders')
-        .insert({
-          user_id: user.id,
-          total_amount: total,
-          status: 'pending',
-          shipping_address: {
-            full_address: `${formData.address}, ${formData.city}, ${formData.postalCode}`,
-            location: formData.location
-          },
-          payment_method: 'cod' // For this demo
-        })
-        .select()
-        .single();
-
-      if (orderError) throw orderError;
-
-      // 2. Create order items
-      const orderItems = cart.map(item => ({
-        order_id: order.id,
-        product_id: item.id,
-        variant_id: item.variant_id,
-        quantity: item.quantity,
-        price: item.price
-      }));
-
-      const { error: itemsError } = await supabase
-        .from('order_items')
-        .insert(orderItems);
-
-      if (itemsError) throw itemsError;
-
-      // 3. Clear cart
-      await clearCart();
+      const { data: { session } } = await supabase.auth.getSession();
+      const token = session?.access_token;
       
-      setOrderSuccess(order.id);
+      const payload = {
+        items: cart.map(item => ({
+          product_id: item.id || item.product_id, // accommodate both cart structures
+          quantity: item.quantity,
+          variant_id: item.variant_id
+        })),
+        formData
+      };
+
+      const res = await fetch('http://localhost:5000/api/checkout/create-order', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(payload)
+      });
+
+      const orderData = await res.json();
+      if (!res.ok) throw new Error(orderData.error || 'Failed to create order');
+
+      const options = {
+        key: import.meta.env.VITE_RAZORPAY_KEY_ID || 'rzp_test_RbbEPxt1kZYRUw', 
+        amount: orderData.razorpayOrder.amount, // in paise
+        currency: "INR",
+        name: "Pura Skincare",
+        description: "Order Payment",
+        order_id: orderData.razorpayOrder.id,
+        handler: async function (response) {
+          try {
+            const verifyRes = await fetch('http://localhost:5000/api/checkout/verify', {
+              method: 'POST',
+              headers: {
+                 'Content-Type': 'application/json',
+                 'Authorization': `Bearer ${token}`
+              },
+              body: JSON.stringify({
+                razorpay_payment_id: response.razorpay_payment_id,
+                razorpay_order_id: response.razorpay_order_id,
+                razorpay_signature: response.razorpay_signature,
+                supabaseOrderId: orderData.supabaseOrderId
+              })
+            });
+            const verifyData = await verifyRes.json();
+            
+            if (verifyRes.ok && verifyData.success) {
+              await clearCart();
+              setOrderSuccess(orderData.supabaseOrderId);
+            } else {
+              alert("Payment verification failed. Please contact support.");
+            }
+          } catch(err) {
+            console.error("Verification error:", err);
+            alert("Error verifying payment");
+          }
+        },
+        prefill: {
+          name: formData.fullName,
+          email: formData.email,
+          contact: formData.phone
+        },
+        theme: {
+          color: "#4A5D4E"
+        }
+      };
+
+      const paymentObject = new window.Razorpay(options);
+      paymentObject.open();
+
     } catch (error) {
       console.error('Error placing order:', error);
-      alert('Failed to place order. Please try again.');
+      alert(error.message || 'There was an error processing your order.');
     } finally {
-      setLoading(false);
+      setLoading(false); // Only resets when modal is closed or errored
     }
   };
 
