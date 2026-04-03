@@ -1,6 +1,8 @@
 import { create } from 'zustand';
 import { supabase } from '../lib/supabase';
 
+const API_URL = 'http://localhost:5000/api';
+
 export const useCartStore = create((set, get) => ({
   cart: [],
   isLoading: false,
@@ -13,28 +15,34 @@ export const useCartStore = create((set, get) => ({
     }, 0);
   },
 
+  getHeaders: async () => {
+    const { data: { session } } = await supabase.auth.getSession();
+    return {
+      'Content-Type': 'application/json',
+      'Authorization': session ? `Bearer ${session.access_token}` : ''
+    };
+  },
+
   fetchCart: async () => {
     set({ isLoading: true });
     
     const { data: { session } } = await supabase.auth.getSession();
     
     if (session?.user) {
-      const { data, error } = await supabase
-        .from('cart')
-        .select(`
-          id, quantity, product_id, variant_id,
-          products (id, name, price, images, compare_price),
-          product_variants (id, variant_name, color_hex)
-        `)
-        .eq('user_id', session.user.id);
-        
-      if (!error && data) {
-        set({ 
-          cart: data, 
-          total: get().calculateTotal(data),
-          isLoading: false 
-        });
-        return;
+      try {
+        const headers = await get().getHeaders();
+        const res = await fetch(`${API_URL}/cart`, { headers });
+        if (res.ok) {
+          const data = await res.json();
+          set({ 
+            cart: data, 
+            total: get().calculateTotal(data),
+            isLoading: false 
+          });
+          return;
+        }
+      } catch (err) {
+        console.error('Error fetching cart from backend:', err);
       }
     }
     
@@ -50,30 +58,20 @@ export const useCartStore = create((set, get) => ({
     const { data: { session } } = await supabase.auth.getSession();
     
     if (session?.user) {
-      const { data: existing } = await supabase
-        .from('cart')
-        .select()
-        .eq('user_id', session.user.id)
-        .eq('product_id', product.id)
-        .eq('variant_id', variantId)
-        .single();
+      try {
+        const headers = await get().getHeaders();
+        const res = await fetch(`${API_URL}/cart`, {
+          method: 'POST',
+          headers,
+          body: JSON.stringify({ productId: product.id, variantId, quantity })
+        });
         
-      if (existing) {
-        await supabase
-          .from('cart')
-          .update({ quantity: existing.quantity + quantity })
-          .eq('id', existing.id);
-      } else {
-        await supabase
-          .from('cart')
-          .insert({
-            user_id: session.user.id,
-            product_id: product.id,
-            variant_id: variantId,
-            quantity
-          });
+        if (res.ok) {
+          get().fetchCart();
+        }
+      } catch (err) {
+        console.error('Error adding to cart via backend:', err);
       }
-      get().fetchCart();
     } else {
       const currentCart = get().cart;
       const existingIdx = currentCart.findIndex(
@@ -91,7 +89,7 @@ export const useCartStore = create((set, get) => ({
           variant_id: variantId,
           quantity,
           products: product,
-          product_variants: null // Simple mockup for variants in local cart
+          product_variants: null 
         });
       }
       
@@ -108,11 +106,20 @@ export const useCartStore = create((set, get) => ({
     
     const { data: { session } } = await supabase.auth.getSession();
     if (session?.user) {
-      await supabase
-        .from('cart')
-        .update({ quantity: newQuantity })
-        .eq('id', cartItemId);
-      get().fetchCart();
+      try {
+        const headers = await get().getHeaders();
+        const res = await fetch(`${API_URL}/cart/${cartItemId}`, {
+          method: 'PUT',
+          headers,
+          body: JSON.stringify({ quantity: newQuantity })
+        });
+        
+        if (res.ok) {
+          get().fetchCart();
+        }
+      } catch (err) {
+        console.error('Error updating quantity via backend:', err);
+      }
     } else {
       const currentCart = get().cart;
       const newCart = currentCart.map(item => 
@@ -129,11 +136,19 @@ export const useCartStore = create((set, get) => ({
   removeFromCart: async (cartItemId) => {
     const { data: { session } } = await supabase.auth.getSession();
     if (session?.user) {
-      await supabase
-        .from('cart')
-        .delete()
-        .eq('id', cartItemId);
-      get().fetchCart();
+      try {
+        const headers = await get().getHeaders();
+        const res = await fetch(`${API_URL}/cart/${cartItemId}`, {
+          method: 'DELETE',
+          headers
+        });
+        
+        if (res.ok) {
+          get().fetchCart();
+        }
+      } catch (err) {
+        console.error('Error removing from cart via backend:', err);
+      }
     } else {
       const newCart = get().cart.filter(item => item.id !== cartItemId);
       localStorage.setItem('pura_cart', JSON.stringify(newCart));
@@ -147,8 +162,19 @@ export const useCartStore = create((set, get) => ({
   clearCart: async () => {
     const { data: { session } } = await supabase.auth.getSession();
     if (session?.user) {
-      await supabase.from('cart').delete().eq('user_id', session.user.id);
-      set({ cart: [], total: 0 });
+      try {
+        const headers = await get().getHeaders();
+        const res = await fetch(`${API_URL}/cart`, {
+          method: 'DELETE',
+          headers
+        });
+        
+        if (res.ok) {
+          set({ cart: [], total: 0 });
+        }
+      } catch (err) {
+        console.error('Error clearing cart via backend:', err);
+      }
     } else {
       localStorage.removeItem('pura_cart');
       set({ cart: [], total: 0 });

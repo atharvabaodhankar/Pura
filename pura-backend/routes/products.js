@@ -57,4 +57,19 @@ router.post('/', requireAuth, requireAdmin, async (req, res) => {
   }
 });
 
+// GET product variants
+router.get('/:id/variants', async (req, res) => {
+  try {
+    const { data: variants, error } = await supabaseAdmin
+      .from('product_variants')
+      .select('*')
+      .eq('product_id', req.params.id);
+
+    if (error) throw error;
+    res.json(variants);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 module.exports = router;

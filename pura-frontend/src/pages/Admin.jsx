@@ -109,6 +109,9 @@ export default function Admin() {
     setProductSuccess(false);
 
     try {
+      const { data: { session } } = await supabase.auth.getSession();
+      const token = session?.access_token;
+
       const slug = productData.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
       const newProduct = {
         name: productData.name,
@@ -122,8 +125,16 @@ export default function Admin() {
         images: productData.image ? [productData.image] : []
       };
 
-      const { error } = await supabase.from('products').insert(newProduct);
-      if (error) throw error;
+      const res = await fetch('http://localhost:5000/api/products', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(newProduct)
+      });
+
+      if (!res.ok) throw new Error('Failed to add product');
       
       setProductSuccess(true);
       setProductData({

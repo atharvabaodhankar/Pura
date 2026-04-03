@@ -36,14 +36,22 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   const fetchProfile = async (userId) => {
-    const { data } = await supabase
-      .from('profiles')
-      .select('*')
-      .eq('id', userId)
-      .single();
-    
-    if (data) setProfile(data);
-    setLoading(false);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      const res = await fetch(`http://localhost:5000/api/profiles/${userId}`, {
+        headers: {
+          'Authorization': `Bearer ${session?.access_token}`
+        }
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setProfile(data);
+      }
+    } catch (err) {
+      console.error('Error fetching profile from backend:', err);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const signIn = async (email, password) => {

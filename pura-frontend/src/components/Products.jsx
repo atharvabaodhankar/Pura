@@ -352,7 +352,7 @@ export default function Products({ onAddToCart }) {
       .finally(() => setLoading(false));
   }, []);
 
-  const dataToDisplay = dbProducts.length > 0 ? dbProducts : products; // fallback to static if db empty
+  const dataToDisplay = dbProducts;
   const filtered = filter === 'all' ? dataToDisplay : dataToDisplay.filter((p) => p.cat === filter);
 
   return (

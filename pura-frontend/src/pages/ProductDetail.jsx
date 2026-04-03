@@ -18,29 +18,33 @@ export default function ProductDetail() {
 
   useEffect(() => {
     async function fetchProduct() {
-      const { data: productData, error: productError } = await supabase
-        .from('products')
-        .select('*')
-        .eq('slug', slug)
-        .single();
-      
-      if (productError || !productData) {
-        console.error('Error fetching product:', productError);
-        navigate('/');
-        return;
-      }
-      
-      const { data: variantsData } = await supabase
-        .from('product_variants')
-        .select('*')
-        .eq('product_id', productData.id);
+      try {
+        const res = await fetch(`http://localhost:5000/api/products/${slug}`);
+        const productData = await res.json();
         
-      setProduct(productData);
-      setVariants(variantsData || []);
-      if (variantsData?.length > 0) {
-        setSelectedVariant(variantsData[0]);
+        if (!res.ok || !productData) {
+          console.error('Error fetching product from backend');
+          navigate('/');
+          return;
+        }
+        
+        // Fetch variants (we could also include this in the single product backend call for efficiency)
+        const vRes = await fetch(`http://localhost:5000/api/products/${productData.id}/variants`);
+        let variantsData = [];
+        if (vRes.ok) {
+          variantsData = await vRes.json();
+        }
+          
+        setProduct(productData);
+        setVariants(variantsData || []);
+        if (variantsData?.length > 0) {
+          setSelectedVariant(variantsData[0]);
+        }
+        setLoading(false);
+      } catch (err) {
+        console.error('Fetch error:', err);
+        navigate('/');
       }
-      setLoading(false);
     }
     
     fetchProduct();

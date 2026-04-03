@@ -17,22 +17,22 @@ export default function Orders() {
     }
 
     async function fetchOrders() {
-      const { data, error } = await supabase
-        .from('orders')
-        .select(`
-          *,
-          order_items (
-            *,
-            products (*)
-          )
-        `)
-        .eq('user_id', user.id)
-        .order('created_at', { ascending: false });
-
-      if (!error) {
-        setOrders(data);
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        const res = await fetch('http://localhost:5000/api/orders/my-orders', {
+          headers: {
+            'Authorization': `Bearer ${session?.access_token}`
+          }
+        });
+        if (res.ok) {
+          const data = await res.json();
+          setOrders(data);
+        }
+      } catch (err) {
+        console.error('Error fetching orders:', err);
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     }
 
     fetchOrders();
