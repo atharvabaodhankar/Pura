@@ -19,13 +19,18 @@ const requireAuth = async (req, res, next) => {
     req.token = token;
     
     // Also fetch profile role from profiles table to check if admin
-    const { data: profile } = await supabaseAdmin
+    const { data: profile, error: profileError } = await supabaseAdmin
       .from('profiles')
       .select('role')
-      .eq('id', user.id)
-      .single();
+      .eq('id', req.user.id)
+      .maybeSingle();
+      
+    if (profileError) {
+      console.warn("Error fetching user profile role:", profileError);
+    }
       
     req.user.role = profile?.role || 'customer';
+    req.user.is_admin = req.user.role === 'admin';
 
     next();
   } catch (err) {

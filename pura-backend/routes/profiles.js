@@ -15,9 +15,11 @@ router.get('/:id', requireAuth, async (req, res) => {
       .from('profiles')
       .select('*')
       .eq('id', req.params.id)
-      .single();
+      .maybeSingle();
 
     if (error) throw error;
+    if (!profile) return res.status(404).json({ error: 'Profile not found' });
+    
     res.json(profile);
   } catch (err) {
     res.status(500).json({ error: err.message });

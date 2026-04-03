@@ -28,14 +28,22 @@ router.post('/', requireAuth, async (req, res) => {
     const { productId, variantId, quantity = 1 } = req.body;
     
     // Check if item already exists in cart
-    const { data: existing } = await supabaseAdmin
+    let query = supabaseAdmin
       .from('cart')
       .select()
       .eq('user_id', req.user.id)
-      .eq('product_id', productId)
-      .eq('variant_id', variantId)
-      .single();
+      .eq('product_id', productId);
+    
+    if (variantId) {
+      query = query.eq('variant_id', variantId);
+    } else {
+      query = query.is('variant_id', null);
+    }
+
+    const { data: existing, error: fetchError } = await query.maybeSingle();
       
+    if (fetchError) throw fetchError;
+
     if (existing) {
       const { data, error } = await supabaseAdmin
         .from('cart')
