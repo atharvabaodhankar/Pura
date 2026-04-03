@@ -88,6 +88,45 @@ router.post('/create-order', requireAuth, async (req, res) => {
   }
 });
 
+/**
+ * Helper to finalize order: confirm status, decrement stock, and clear cart.
+ * Can be called by /verify or /webhook.
+ */
+async function handleOrderSuccess(supabaseOrderId, razorpay_payment_id, userId) {
+  // 1. Get ordered items for decrementing stock
+  const { data: items, error: itemsError } = await supabaseAdmin
+    .from('order_items')
+    .select('product_id, variant_id, quantity')
+    .eq('order_id', supabaseOrderId);
+
+  if (itemsError) throw itemsError;
+
+  // 2. Decrement stock for each item using the RPC
+  for (const item of items) {
+    await supabaseAdmin.rpc('decrement_stock', {
+      prod_id: item.product_id,
+      var_id: item.variant_id,
+      qty: item.quantity
+    });
+  }
+
+  // 3. Update Supabase order to Confirmed
+  const { error: orderUpdateError } = await supabaseAdmin
+    .from('orders')
+    .update({ 
+      status: 'confirmed', 
+      payment_id: razorpay_payment_id 
+    })
+    .eq('id', supabaseOrderId);
+
+  if (orderUpdateError) throw orderUpdateError;
+  
+  // 4. Clear the user's cart
+  if (userId) {
+    await supabaseAdmin.from('cart').delete().eq('user_id', userId);
+  }
+}
+
 // POST /api/checkout/verify
 router.post('/verify', requireAuth, async (req, res) => {
   try {
@@ -105,24 +144,68 @@ router.post('/verify', requireAuth, async (req, res) => {
       .digest("hex");
 
     if (razorpay_signature === expectedSign) {
-      // Payment matches, update Supabase order to Confirmed
-      const { error } = await supabaseAdmin
-        .from('orders')
-        .update({ status: 'confirmed', payment_id: razorpay_payment_id })
-        .eq('id', supabaseOrderId);
-
-      if (error) throw error;
+      // Payment signature matches, finalize the order
+      await handleOrderSuccess(supabaseOrderId, razorpay_payment_id, req.user.id);
       
-      // We should ideally also clear the user's Supabase cart here
-      await supabaseAdmin.from('cart').delete().eq('user_id', req.user.id);
-
-      return res.json({ message: "Payment verified successfully", success: true });
+      return res.json({ message: "Payment verified and order finalized!", success: true });
     } else {
       // Signature mismatch
       return res.status(400).json({ message: "Invalid signature sent!", success: false });
     }
   } catch (err) {
     console.error("Verify Payment Error:", err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// POST /api/checkout/webhook
+// This handles asynchronous confirmation if /verify isn't called or fails
+router.post('/webhook', async (req, res) => {
+  try {
+    const secret = process.env.RAZORPAY_WEBHOOK_SECRET;
+    const shorthandSignature = req.headers['x-razorpay-signature'];
+    
+    // Verify Webhook Signature
+    const body = JSON.stringify(req.body);
+    const expectedSignature = crypto
+      .createHmac('sha256', secret)
+      .update(body)
+      .digest('hex');
+
+    if (shorthandSignature !== expectedSignature) {
+      return res.status(400).json({ error: 'Invalid webhook signature' });
+    }
+
+    const event = req.body.event;
+    const payload = req.body.payload;
+
+    // We mainly care about payment captured or order paid
+    if (event === 'payment.captured' || event === 'order.paid') {
+      const payment = payload.payment.entity;
+      const orderId = payment.notes.supabaseOrderId || payment.description; // Usually we put orderId in notes
+      
+      // If we used a custom receipt/notes
+      const supabaseOrderId = payment.notes.supabaseOrderId || payload.order.entity.receipt;
+
+      if (supabaseOrderId) {
+        // Find user_id from order to clear cart
+        const { data: order } = await supabaseAdmin
+          .from('orders')
+          .select('user_id, status')
+          .eq('id', supabaseOrderId)
+          .single();
+
+        // Only process if not already confirmed
+        if (order && order.status === 'pending') {
+          await handleOrderSuccess(supabaseOrderId, payment.id, order.user_id);
+          console.log(`Webhook: Finalized order ${supabaseOrderId} via ${event}`);
+        }
+      }
+    }
+
+    res.json({ status: 'ok' });
+  } catch (err) {
+    console.error("Webhook Error:", err);
     res.status(500).json({ error: err.message });
   }
 });
