@@ -3,7 +3,7 @@ import useFadeUp from '../hooks/useFadeUp';
 import {
   Leaf, FlaskConical, Droplets, Beaker,
   Flower2, Sparkles, Sun, Layers, Dna,
-  Sprout, Microscope, TestTube, Hands,
+  Sprout, Microscope, TestTube, Hand,
   Wind, Citrus, Nut, CheckCircle2,
 } from 'lucide-react';
 
@@ -34,7 +34,7 @@ const pfData = {
       { Icon: Sprout,      gradient: 'linear-gradient(135deg,#d4ecd5,#7ab87f)', label: 'Step 1', title: 'Harvest', desc: 'Aloe leaves & green tea leaves ethically sourced' },
       { Icon: Microscope,  gradient: 'linear-gradient(135deg,#c8e8c8,#4a8f50)', label: 'Step 2', title: 'Extract', desc: 'Cold-press aloe gel + steam-distill green tea catechins' },
       { Icon: TestTube,    gradient: 'linear-gradient(135deg,#b8d8b8,#3d6b42)', label: 'Step 3', title: 'Blend', desc: 'Mix with ethanol 70% + glycerin at controlled pH 6.5' },
-      { Icon: Hands,       gradient: 'linear-gradient(135deg,#a8c5aa,#4a6b4e)', label: 'Result', title: 'Sanitize & Soothe', desc: 'Kills 99.9% germs while aloe hydrates & green tea protects' },
+      { Icon: Hand,       gradient: 'linear-gradient(135deg,#a8c5aa,#4a6b4e)', label: 'Result', title: 'Sanitize & Soothe', desc: 'Kills 99.9% germs while aloe hydrates & green tea protects' },
     ],
     result: { text: 'Kills 99.9% germs · Soothes with aloe · Antioxidant protection · No dry-out effect', stats: [{ val: '99.9%', lbl: 'Germ Kill' }, { val: 'pH 6.5', lbl: 'Skin Safe' }, { val: '100%', lbl: 'Natural Origin' }] },
   },
@@ -51,7 +51,7 @@ const pfData = {
       { Icon: Sprout,     gradient: 'linear-gradient(135deg,#e8e0f4,#9b7ed4)', label: 'Step 1', title: 'Harvest', desc: 'Lavender & rose petals hand-picked at peak bloom' },
       { Icon: Microscope, gradient: 'linear-gradient(135deg,#d8c8f0,#7c5cbf)', label: 'Step 2', title: 'Distill', desc: 'Steam distillation captures pure essential oils & hydrosol' },
       { Icon: TestTube,   gradient: 'linear-gradient(135deg,#c8b0e8,#6345a8)', label: 'Step 3', title: 'Blend', desc: 'Infused into ethanol base with rose water & glycerin' },
-      { Icon: Hands,      gradient: 'linear-gradient(135deg,#b0a0d8,#4a3090)', label: 'Result', title: 'Sanitize & Calm', desc: 'Kills germs while lavender calms & rose tones skin' },
+      { Icon: Hand,      gradient: 'linear-gradient(135deg,#b0a0d8,#4a3090)', label: 'Result', title: 'Sanitize & Calm', desc: 'Kills germs while lavender calms & rose tones skin' },
     ],
     result: { text: 'Kills 99.9% germs · Calming lavender aroma · Rose water tones skin · Stress-relief scent', stats: [{ val: '99.9%', lbl: 'Germ Kill' }, { val: '2-in-1', lbl: 'Sanitize + Tone' }, { val: '0%', lbl: 'Parabens' }] },
   },
@@ -68,7 +68,7 @@ const pfData = {
       { Icon: Citrus,     gradient: 'linear-gradient(135deg,#fce8d4,#e8944a)', label: 'Step 1', title: 'Press', desc: 'Cold-press citrus peels to extract bioflavonoids' },
       { Icon: Microscope, gradient: 'linear-gradient(135deg,#f8d8b0,#c87941)', label: 'Step 2', title: 'Enrich', desc: 'Vitamin E tocopherol added as antioxidant booster' },
       { Icon: TestTube,   gradient: 'linear-gradient(135deg,#f0c060,#a85f2e)', label: 'Step 3', title: 'Blend', desc: 'Combined with ethanol base at optimal concentration' },
-      { Icon: Hands,      gradient: 'linear-gradient(135deg,#e8a050,#8b4010)', label: 'Result', title: 'Sanitize & Brighten', desc: 'Kills germs, Vitamin E repairs & citrus brightens skin tone' },
+      { Icon: Hand,      gradient: 'linear-gradient(135deg,#e8a050,#8b4010)', label: 'Result', title: 'Sanitize & Brighten', desc: 'Kills germs, Vitamin E repairs & citrus brightens skin tone' },
     ],
     result: { text: 'Kills 99.9% germs · Vitamin E repairs skin · Citrus brightens · Energising scent', stats: [{ val: '99.9%', lbl: 'Germ Kill' }, { val: 'Vit E', lbl: 'Skin Repair' }, { val: '0%', lbl: 'Sulphates' }] },
   },
@@ -85,7 +85,7 @@ const pfData = {
       { Icon: Nut,        gradient: 'linear-gradient(135deg,#f8ede0,#e8b88a)', label: 'Step 1', title: 'Source', desc: 'Unrefined shea nuts cold-pressed, raw honey cold-processed' },
       { Icon: Microscope, gradient: 'linear-gradient(135deg,#f0d8b0,#c49060)', label: 'Step 2', title: 'Refine', desc: 'Shea emulsified, honey filtered to retain enzymes & nutrients' },
       { Icon: TestTube,   gradient: 'linear-gradient(135deg,#e8c890,#9a7040)', label: 'Step 3', title: 'Formulate', desc: 'Blended with aloe gel + vitamins A & E at low heat' },
-      { Icon: Hands,      gradient: 'linear-gradient(135deg,#d4a870,#704820)', label: 'Result', title: 'Repair & Moisturise', desc: 'Shea rebuilds barrier, honey locks moisture, aloe soothes' },
+      { Icon: Hand,      gradient: 'linear-gradient(135deg,#d4a870,#704820)', label: 'Result', title: 'Repair & Moisturise', desc: 'Shea rebuilds barrier, honey locks moisture, aloe soothes' },
     ],
     result: { text: 'Repairs dry skin overnight · Locks in moisture · Soothes irritation · Rich in vitamins A & E', stats: [{ val: '72hr', lbl: 'Moisture Lock' }, { val: 'Vit A+E', lbl: 'Skin Renewal' }, { val: '0%', lbl: 'Mineral Oil' }] },
   },
@@ -102,7 +102,7 @@ const pfData = {
       { Icon: Dna,        gradient: 'linear-gradient(135deg,#dff0f4,#70c8e0)', label: 'Step 1', title: 'Synthesise', desc: 'Collagen hydrolysed into bioavailable peptides for skin absorption' },
       { Icon: Microscope, gradient: 'linear-gradient(135deg,#c0e4f0,#3d8a9e)', label: 'Step 2', title: 'Layer', desc: 'Dual-weight HA — high MW seals surface, low MW penetrates deep' },
       { Icon: TestTube,   gradient: 'linear-gradient(135deg,#a8d8e8,#2a6878)', label: 'Step 3', title: 'Stabilise', desc: 'Vitamin C & ceramides added to stabilise and protect formula' },
-      { Icon: Hands,      gradient: 'linear-gradient(135deg,#90c8d8,#1a5060)', label: 'Result', title: 'Plump & Firm', desc: 'Collagen firms, HA plumps, Vitamin C brightens, ceramides protect' },
+      { Icon: Hand,      gradient: 'linear-gradient(135deg,#90c8d8,#1a5060)', label: 'Result', title: 'Plump & Firm', desc: 'Collagen firms, HA plumps, Vitamin C brightens, ceramides protect' },
     ],
     result: { text: 'Firms & plumps skin · Deep hydration · Brightens tone · Restores skin barrier', stats: [{ val: '1000×', lbl: 'HA Water Hold' }, { val: '2-MW', lbl: 'Deep Penetration' }, { val: '0%', lbl: 'Fragrance' }] },
   },
@@ -119,7 +119,7 @@ const pfData = {
       { Icon: Flower2,    gradient: 'linear-gradient(135deg,#ffe8ec,#f09098)', label: 'Step 1', title: 'Extract', desc: 'Rose petals CO₂-extracted to preserve bioactive compounds' },
       { Icon: Microscope, gradient: 'linear-gradient(135deg,#f0c0c4,#d4707a)', label: 'Step 2', title: 'Press', desc: 'Argan & jojoba cold-pressed to retain fatty acids & sterols' },
       { Icon: TestTube,   gradient: 'linear-gradient(135deg,#e0a0a8,#b85060)', label: 'Step 3', title: 'Blend', desc: 'Oils emulsified with rose extract + Vitamin E at low temp' },
-      { Icon: Hands,      gradient: 'linear-gradient(135deg,#d08090,#903040)', label: 'Result', title: 'Nourish & Protect', desc: 'Argan nourishes deeply, rose soothes, jojoba balances, Vit E shields' },
+      { Icon: Hand,      gradient: 'linear-gradient(135deg,#d08090,#903040)', label: 'Result', title: 'Nourish & Protect', desc: 'Argan nourishes deeply, rose soothes, jojoba balances, Vit E shields' },
     ],
     result: { text: 'Intensely nourishes dry skin · Anti-inflammatory rose · Balances oil · Antioxidant shield', stats: [{ val: '80%', lbl: 'Oleic Acid' }, { val: 'CO₂', lbl: 'Extracted' }, { val: '0%', lbl: 'Silicones' }] },
   },
@@ -144,7 +144,7 @@ export default function HowItWorks() {
       <div className="max-w-[1200px] mx-auto relative z-1">
         <div ref={headerRef} className="fade-up text-center mb-12">
           <div className="section-label justify-center before:hidden !text-sage-light">Product Process Flow</div>
-          <h2 className="section-heading !text-cream">From nature to <em className="!text-sage-light">your hands</em></h2>
+          <h2 className="section-heading !text-cream">From nature to <em className="!text-sage-light">your Hand</em></h2>
           <p className="text-cream/50 mt-4 text-[0.9rem] leading-[1.7]">Select a product to see its full ingredient-to-benefit process flow.</p>
         </div>
 

@@ -21,7 +21,7 @@ export default function CtaBanner() {
   };
 
   return (
-    <section className="px-16 mb-24 max-md:px-6 max-md:mb-16">
+    <section className="px-16 mt-25 mb-24 max-md:px-6 max-md:mb-16">
       <div
         className="relative overflow-hidden rounded-[40px]"
         style={{ background: 'var(--color-charcoal)' }}
