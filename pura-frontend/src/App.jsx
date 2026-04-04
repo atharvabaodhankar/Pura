@@ -16,6 +16,7 @@ import HowItWorks from './components/HowItWorks';
 import CtaBanner from './components/CtaBanner';
 import Footer from './components/Footer';
 import CartDrawer from './components/CartDrawer';
+import ChatWidget from './components/ChatWidget';
 
 // Pages
 import Login from './pages/Login';
@@ -61,6 +62,7 @@ function App() {
         <Toast show={showToast} />
         <Navbar onCartClick={() => setIsCartOpen(true)} />
         <CartDrawer isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} />
+        <ChatWidget />
         
         <Routes>
           <Route path="/" element={<LandingPage onAddToCart={handleAddToCart} />} />
