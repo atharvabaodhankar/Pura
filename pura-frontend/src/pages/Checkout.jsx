@@ -86,9 +86,9 @@ export default function Checkout() {
       
       const payload = {
         items: cart.map(item => ({
-          product_id: item.id || item.product_id, // accommodate both cart structures
+          product_id: item.product_id,  // always use product_id (both backend cart and localStorage cart set this)
           quantity: item.quantity,
-          variant_id: item.variant_id
+          variant_id: item.variant_id || null
         })),
         formData
       };
@@ -369,18 +369,26 @@ export default function Checkout() {
               <h3 className="text-sm font-bold text-charcoal/60 uppercase tracking-[0.2em] mb-8">Order Summary</h3>
               
               <div className="space-y-6 mb-8 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar">
-                {cart.map(item => (
+                {cart.map(item => {
+                  const name = item.products?.name || item.name || 'Product';
+                  const image = item.products?.images?.[0] || item.image || '';
+                  const price = item.products?.price || item.price || 0;
+                  return (
                   <div key={`${item.id}-${item.variant_id}`} className="flex gap-4">
                     <div className="w-20 h-20 rounded-2xl bg-black/5 flex items-center justify-center p-2 shrink-0 border border-glass-border">
-                      <img src={item.image} alt={item.name} className="w-full h-full object-contain" />
+                      <img src={image} alt={name} className="w-full h-full object-contain" />
                     </div>
                     <div className="flex flex-col justify-center gap-1 flex-1 min-w-0">
-                      <h4 className="font-semibold text-charcoal truncate">{item.name}</h4>
+                      <h4 className="font-semibold text-charcoal truncate">{name}</h4>
+                      {item.product_variants?.variant_name && (
+                        <div className="text-xs text-sage-dark font-medium">{item.product_variants.variant_name}</div>
+                      )}
                       <div className="text-xs text-text-muted uppercase tracking-wider font-medium">Qty: {item.quantity}</div>
-                      <div className="text-sm font-bold text-sage-dark">₹{item.price * item.quantity}</div>
+                      <div className="text-sm font-bold text-sage-dark">₹{price * item.quantity}</div>
                     </div>
                   </div>
-                ))}
+                  );
+                })}
               </div>
 
               <div className="space-y-4 pt-6 border-t border-glass-border">

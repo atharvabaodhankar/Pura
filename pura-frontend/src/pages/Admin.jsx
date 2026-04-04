@@ -2,15 +2,20 @@ import { useEffect, useState, useMemo } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { supabase } from '../lib/supabase';
 import { GoogleMap, useJsApiLoader, HeatmapLayer } from '@react-google-maps/api';
-import { Package, Map, PlusCircle, CheckCircle2 } from 'lucide-react';
+import { Package, Map, PlusCircle, CheckCircle2, Star, MessageSquare, ThumbsUp, ThumbsDown } from 'lucide-react';
 
 const libraries = ['visualization'];
+const API = 'http://localhost:5000/api';
 
 export default function Admin() {
   const { profile, loading: authLoading } = useAuth();
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState('orders'); // 'orders', 'heatmap', 'addProduct'
+  const [activeTab, setActiveTab] = useState('orders'); // 'orders', 'heatmap', 'addProduct', 'reviews'
+
+  // Reviews state
+  const [reviews, setReviews] = useState([]);
+  const [reviewsLoading, setReviewsLoading] = useState(false);
 
   // Add Product State
   const [productData, setProductData] = useState({
@@ -35,6 +40,7 @@ export default function Admin() {
   useEffect(() => {
     if (!authLoading && profile?.role === 'admin') {
       fetchOrders();
+      fetchReviews();
     }
   }, [profile, authLoading]);
 
@@ -43,14 +49,11 @@ export default function Admin() {
       const { data: { session } } = await supabase.auth.getSession();
       const token = session?.access_token;
       
-      const res = await fetch('http://localhost:5000/api/orders', {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
+      const res = await fetch(`${API}/orders`, {
+        headers: { 'Authorization': `Bearer ${token}` }
       });
       
       if (!res.ok) throw new Error('Failed to fetch orders');
-      
       const ordersData = await res.json();
       setOrders(ordersData || []);
     } catch (err) {
@@ -60,12 +63,44 @@ export default function Admin() {
     }
   };
 
+  const fetchReviews = async () => {
+    setReviewsLoading(true);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      const res = await fetch(`${API}/reviews`, {
+        headers: { 'Authorization': `Bearer ${session?.access_token}` }
+      });
+      if (res.ok) setReviews(await res.json());
+    } catch (err) {
+      console.error("Error fetching reviews:", err);
+    } finally {
+      setReviewsLoading(false);
+    }
+  };
+
+  const handleReviewApproval = async (reviewId, is_approved) => {
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      const res = await fetch(`${API}/reviews/${reviewId}/approve`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session?.access_token}`
+        },
+        body: JSON.stringify({ is_approved })
+      });
+      if (res.ok) fetchReviews();
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
   const updateOrderStatus = async (orderId, status) => {
     try {
       const { data: { session } } = await supabase.auth.getSession();
       const token = session?.access_token;
       
-      const res = await fetch(`http://localhost:5000/api/orders/${orderId}/status`, {
+      const res = await fetch(`${API}/orders/${orderId}/status`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -125,7 +160,7 @@ export default function Admin() {
         images: productData.image ? [productData.image] : []
       };
 
-      const res = await fetch('http://localhost:5000/api/products', {
+      const res = await fetch(`${API}/products`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -174,6 +209,17 @@ export default function Admin() {
             className={`flex items-center gap-2 px-6 py-2.5 rounded-full text-sm font-semibold transition-all cursor-pointer ${activeTab === 'addProduct' ? 'bg-white shadow-md text-charcoal' : 'text-charcoal/60 hover:text-charcoal border-none bg-transparent'}`}
           >
             <PlusCircle className="w-4 h-4" /> New Product
+          </button>
+          <button 
+            onClick={() => setActiveTab('reviews')}
+            className={`flex items-center gap-2 px-6 py-2.5 rounded-full text-sm font-semibold transition-all cursor-pointer ${activeTab === 'reviews' ? 'bg-white shadow-md text-charcoal' : 'text-charcoal/60 hover:text-charcoal border-none bg-transparent'}`}
+          >
+            <MessageSquare className="w-4 h-4" /> Reviews
+            {reviews.filter(r => !r.is_approved).length > 0 && (
+              <span className="ml-1 bg-amber-500 text-white text-[0.6rem] font-bold px-1.5 py-0.5 rounded-full">
+                {reviews.filter(r => !r.is_approved).length}
+              </span>
+            )}
           </button>
         </div>
       </div>
@@ -346,6 +392,67 @@ export default function Admin() {
               </button>
             </div>
           </form>
+        </div>
+      )}
+      {activeTab === 'reviews' && (
+        <div className="bg-white rounded-3xl shadow-lg shadow-black/5 border border-glass-border p-8 animate-fade-up">
+          <div className="flex justify-between items-center mb-6">
+            <h2 className="font-heading text-2xl">Review Moderation</h2>
+            <div className="flex gap-3 text-sm">
+              <span className="px-3 py-1 rounded-full bg-amber-100 text-amber-800 font-semibold">
+                {reviews.filter(r => !r.is_approved).length} pending
+              </span>
+              <span className="px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 font-semibold">
+                {reviews.filter(r => r.is_approved).length} approved
+              </span>
+            </div>
+          </div>
+
+          {reviewsLoading ? (
+            <div className="text-center py-12 text-text-muted">Loading reviews...</div>
+          ) : reviews.length === 0 ? (
+            <div className="text-center py-12 text-text-muted text-sm">No reviews yet.</div>
+          ) : (
+            <div className="flex flex-col gap-4">
+              {reviews.map(review => (
+                <div key={review.id} className={`flex flex-col sm:flex-row sm:items-start gap-4 p-5 rounded-2xl border transition-colors ${review.is_approved ? 'border-emerald-200 bg-emerald-50/30' : 'border-amber-200 bg-amber-50/30'}`}>
+                  <div className="flex-1 flex flex-col gap-2">
+                    <div className="flex items-center gap-3 flex-wrap">
+                      <span className="text-sm font-bold text-charcoal">{review.profiles?.full_name || 'Customer'}</span>
+                      <span className="text-xs text-text-muted">on</span>
+                      <span className="text-sm font-semibold text-sage-dark">{review.products?.name}</span>
+                      <div className="flex gap-0.5">
+                        {[1,2,3,4,5].map(n => (
+                          <Star key={n} className={`w-3.5 h-3.5 ${n <= review.rating ? 'fill-sage-dark text-sage-dark' : 'text-charcoal/20'}`} />
+                        ))}
+                      </div>
+                      <span className="text-xs text-text-muted">{new Date(review.created_at).toLocaleDateString('en-IN')}</span>
+                    </div>
+                    {review.comment && (
+                      <p className="text-sm text-text-muted leading-relaxed">{review.comment}</p>
+                    )}
+                  </div>
+                  <div className="flex gap-2 shrink-0">
+                    {!review.is_approved ? (
+                      <button
+                        onClick={() => handleReviewApproval(review.id, true)}
+                        className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-emerald-600 text-white text-xs font-bold hover:bg-emerald-700 transition-colors border-none cursor-pointer"
+                      >
+                        <ThumbsUp className="w-3.5 h-3.5" /> Approve
+                      </button>
+                    ) : (
+                      <button
+                        onClick={() => handleReviewApproval(review.id, false)}
+                        className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-red-100 text-red-700 text-xs font-bold hover:bg-red-200 transition-colors border-none cursor-pointer"
+                      >
+                        <ThumbsDown className="w-3.5 h-3.5" /> Unapprove
+                      </button>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       )}
     </div>

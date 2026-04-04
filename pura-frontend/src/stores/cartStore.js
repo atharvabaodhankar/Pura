@@ -10,7 +10,7 @@ export const useCartStore = create((set, get) => ({
 
   calculateTotal: (items) => {
     return items.reduce((sum, item) => {
-      const price = item.products?.price || 0;
+      const price = item.products?.price || item.price || 0;
       return sum + (price * item.quantity);
     }, 0);
   },
