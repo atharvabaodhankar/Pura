@@ -1,12 +1,13 @@
 import useFadeUp from '../hooks/useFadeUp';
+import { Leaf, Droplets, Layers, FlaskConical, Flower2, Sparkles } from 'lucide-react';
 
 const ingredients = [
-  { icon: '🌿', name: 'Aloe Vera Extract', desc: 'Soothes and hydrates while actively fighting bacteria. Nature\'s own hand healer.' },
-  { icon: '🍯', name: 'Raw Honey', desc: 'Natural humectant with antibacterial properties — locks moisture into skin cells.' },
-  { icon: '🫚', name: 'Shea Butter', desc: 'Rich in vitamins A and E. Repairs the skin barrier and prevents dryness.' },
-  { icon: '🍵', name: 'Green Tea', desc: 'Powerful antioxidant that neutralises free radicals and reduces inflammation.' },
-  { icon: '🌹', name: 'Argan Oil', desc: 'Moroccan liquid gold. Intensely nourishing for dry, sensitive skin.' },
-  { icon: '💧', name: 'Hyaluronic Acid', desc: 'Holds 1000× its weight in water. Keeps hands plump and deeply moisturised.' },
+  { Icon: Leaf,         name: 'Aloe Vera Extract',  desc: 'Soothes and hydrates while actively fighting bacteria. Nature\'s own hand healer.' },
+  { Icon: Sparkles,     name: 'Raw Honey',           desc: 'Natural humectant with antibacterial properties — locks moisture into skin cells.' },
+  { Icon: Layers,       name: 'Shea Butter',         desc: 'Rich in vitamins A and E. Repairs the skin barrier and prevents dryness.' },
+  { Icon: FlaskConical, name: 'Green Tea',            desc: 'Powerful antioxidant that neutralises free radicals and reduces inflammation.' },
+  { Icon: Flower2,      name: 'Argan Oil',            desc: 'Moroccan liquid gold. Intensely nourishing for dry, sensitive skin.' },
+  { Icon: Droplets,     name: 'Hyaluronic Acid',      desc: 'Holds 1000× its weight in water. Keeps hands plump and deeply moisturised.' },
 ];
 
 export default function Ingredients() {
@@ -17,7 +18,6 @@ export default function Ingredients() {
       id="ingredients"
       className="bg-charcoal py-32 px-16 relative overflow-hidden max-md:py-20 max-md:px-6"
     >
-      {/* Ambient blob */}
       <div
         className="absolute pointer-events-none"
         style={{
@@ -29,7 +29,6 @@ export default function Ingredients() {
       />
 
       <div className="max-w-[1300px] mx-auto grid grid-cols-1 md:grid-cols-[1fr_1.6fr] gap-24 items-center max-md:gap-12">
-        {/* Heading */}
         <div ref={headingRef} className="fade-up">
           <div className="section-label !text-sage-light before:!bg-sage-light">
             What's Inside
@@ -42,7 +41,6 @@ export default function Ingredients() {
           </p>
         </div>
 
-        {/* Cards grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
           {ingredients.map((ing, i) => (
             <IngredientCard key={i} ing={ing} delay={(i % 2 === 0 ? 0.1 : 0.2)} />
@@ -55,6 +53,7 @@ export default function Ingredients() {
 
 function IngredientCard({ ing, delay }) {
   const ref = useFadeUp(delay);
+  const { Icon } = ing;
   return (
     <div
       ref={ref}
@@ -72,7 +71,9 @@ function IngredientCard({ ing, delay }) {
         e.currentTarget.style.borderColor = 'rgba(245,240,232,0.1)';
       }}
     >
-      <div className="text-[1.8rem] mb-3">{ing.icon}</div>
+      <div className="w-10 h-10 rounded-xl bg-sage-dark/20 flex items-center justify-center mb-3">
+        <Icon className="w-5 h-5 text-sage-light" />
+      </div>
       <div className="font-heading text-[1.1rem] font-semibold text-cream mb-1">{ing.name}</div>
       <div className="text-[0.78rem] text-cream/50 leading-[1.5]">{ing.desc}</div>
     </div>

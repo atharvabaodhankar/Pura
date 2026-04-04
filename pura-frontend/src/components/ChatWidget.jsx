@@ -94,7 +94,7 @@ export default function ChatWidget() {
   const [messages, setMessages] = useState([
     {
       role: 'assistant',
-      content: "Hi! I'm Pura's support assistant 🌿 I can help you track orders, check status, or answer any questions. What can I help you with?",
+      content: "Hi! I'm Pura's support assistant. I can help you track orders, check status, or answer any questions. What can I help you with?",
       orders: null
     }
   ]);

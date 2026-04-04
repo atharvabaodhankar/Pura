@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import useFadeUp from '../hooks/useFadeUp';
 import { useCartStore } from '../stores/cartStore';
+import { Leaf, Droplets, FlaskConical, Flower2, Sparkles, Layers, Sun, Dna } from 'lucide-react';
 
 const PlusIcon = () => (
   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
@@ -25,9 +26,9 @@ const products = [
     category: 'Hand Sanitizer', name: 'Aloe & Green Tea',
     desc: 'Kills 99.9% germs with a refreshing burst of green tea and soothing aloe vera extract.',
     ingredients: [
-      { icon: '🌿', name: 'Aloe Vera' },
-      { icon: '🍵', name: 'Green Tea' },
-      { icon: '💧', name: 'Ethanol 70%' },
+      { Icon: Leaf,         name: 'Aloe Vera' },
+      { Icon: FlaskConical, name: 'Green Tea' },
+      { Icon: Droplets,     name: 'Ethanol 70%' },
     ],
     variants: [
       { id: 'some-variant-id-1', color: '#7ab87f', title: 'Green Tea', active: true },
@@ -44,9 +45,9 @@ const products = [
     category: 'Hand Sanitizer', name: 'Lavender & Rose',
     desc: 'A calming floral blend that sanitizes deeply while leaving hands smelling like a garden.',
     ingredients: [
-      { icon: '💜', name: 'Lavender Oil' },
-      { icon: '🌹', name: 'Rose Water' },
-      { icon: '💧', name: 'Ethanol 70%' },
+      { Icon: Flower2,  name: 'Lavender Oil' },
+      { Icon: Sparkles, name: 'Rose Water' },
+      { Icon: Droplets, name: 'Ethanol 70%' },
     ],
     variants: [
       { color: '#9b7ed4', title: 'Lavender', active: true },
@@ -62,9 +63,9 @@ const products = [
     category: 'Hand Sanitizer', name: 'Citrus & Vitamin E',
     desc: 'Zesty citrus energy paired with Vitamin E — protection that nourishes as it cleanses.',
     ingredients: [
-      { icon: '🍋', name: 'Citrus Extract' },
-      { icon: '✨', name: 'Vitamin E' },
-      { icon: '💧', name: 'Ethanol 70%' },
+      { Icon: Sun,      name: 'Citrus Extract' },
+      { Icon: Sparkles, name: 'Vitamin E' },
+      { Icon: Droplets, name: 'Ethanol 70%' },
     ],
     variants: [
       { color: '#e8944a', title: 'Citrus', active: true },
@@ -81,9 +82,9 @@ const products = [
     category: 'Moisturizing Hand Cream', name: 'Shea & Raw Honey',
     desc: 'Deep moisturizing formula with shea butter and raw honey. Repairs dry, cracked skin overnight.',
     ingredients: [
-      { icon: '🫚', name: 'Shea Butter' },
-      { icon: '🍯', name: 'Raw Honey' },
-      { icon: '🌿', name: 'Aloe Vera' },
+      { Icon: Layers,   name: 'Shea Butter' },
+      { Icon: Sparkles, name: 'Raw Honey' },
+      { Icon: Leaf,     name: 'Aloe Vera' },
     ],
     variants: [
       { color: '#e8b88a', title: 'Original', active: true },
@@ -99,9 +100,9 @@ const products = [
     category: 'Moisturizing Hand Cream', name: 'Collagen & Hyaluronic',
     desc: 'Advanced anti-aging formula with collagen peptides and hyaluronic acid for plump, youthful hands.',
     ingredients: [
-      { icon: '🧬', name: 'Collagen Peptides' },
-      { icon: '💧', name: 'Hyaluronic Acid' },
-      { icon: '✨', name: 'Vitamin C' },
+      { Icon: Dna,      name: 'Collagen Peptides' },
+      { Icon: Droplets, name: 'Hyaluronic Acid' },
+      { Icon: Sun,      name: 'Vitamin C' },
     ],
     variants: [
       { color: '#70c8e0', title: 'Classic', active: true },
@@ -117,9 +118,9 @@ const products = [
     category: 'Moisturizing Hand Cream', name: 'Rose & Argan Oil',
     desc: 'Luxuriously rich formula with Moroccan argan oil and rose extract. Intensely nourishing for very dry hands.',
     ingredients: [
-      { icon: '🌹', name: 'Rose Extract' },
-      { icon: '🫚', name: 'Argan Oil' },
-      { icon: '🍯', name: 'Jojoba Oil' },
+      { Icon: Flower2, name: 'Rose Extract' },
+      { Icon: Layers,  name: 'Argan Oil' },
+      { Icon: Sparkles,name: 'Jojoba Oil' },
     ],
     variants: [
       { color: '#f09098', title: 'Rose', active: true },
@@ -259,20 +260,23 @@ function ProductCard({ product, onAddToCart }) {
         {/* Ingredient tags */}
         {product.ingredients.length > 0 && (
           <div className="flex flex-wrap gap-1.5 mb-4">
-            {product.ingredients.map((ing, i) => (
-              <span
-                key={i}
-                className="inline-flex items-center gap-1 text-[0.68rem] tracking-[0.04em] font-medium px-2.5 py-1 rounded-[2rem] transition-all duration-200 hover:translate-y-[-1px]"
-                style={{
-                  background: 'rgba(122,158,126,0.12)',
-                  border: '1px solid rgba(122,158,126,0.25)',
-                  color: 'var(--color-sage-dark)',
-                }}
-              >
-                <span>{ing.icon}</span>
-                {ing.name}
-              </span>
-            ))}
+            {product.ingredients.map((ing, i) => {
+              const Icon = ing.Icon;
+              return (
+                <span
+                  key={i}
+                  className="inline-flex items-center gap-1 text-[0.68rem] tracking-[0.04em] font-medium px-2.5 py-1 rounded-[2rem] transition-all duration-200 hover:translate-y-[-1px]"
+                  style={{
+                    background: 'rgba(122,158,126,0.12)',
+                    border: '1px solid rgba(122,158,126,0.25)',
+                    color: 'var(--color-sage-dark)',
+                  }}
+                >
+                  {Icon && <Icon className="w-3 h-3" />}
+                  {ing.name}
+                </span>
+              );
+            })}
           </div>
         )}
 
