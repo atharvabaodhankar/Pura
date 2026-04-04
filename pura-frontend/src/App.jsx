@@ -25,6 +25,7 @@ import Admin from './pages/Admin';
 import ProductDetail from './pages/ProductDetail';
 import Checkout from './pages/Checkout';
 import Orders from './pages/Orders';
+import Preloader from './components/Preloader';
 
 function LandingPage({ onAddToCart }) {
   return (
@@ -44,10 +45,14 @@ function LandingPage({ onAddToCart }) {
 function App() {
   const [showToast, setShowToast] = useState(false);
   const [isCartOpen, setIsCartOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const fetchCart = useCartStore(state => state.fetchCart);
 
   useEffect(() => {
     fetchCart();
+    // Simulate loading for brand feel
+    const timer = setTimeout(() => setIsLoading(false), 2400);
+    return () => clearTimeout(timer);
   }, [fetchCart]);
 
   const handleAddToCart = () => {
@@ -58,6 +63,7 @@ function App() {
   return (
     <AuthProvider>
       <BrowserRouter>
+        <Preloader isLoading={isLoading} />
         <ScrollProgress />
         <Toast show={showToast} />
         <Navbar onCartClick={() => setIsCartOpen(true)} />

@@ -1,5 +1,5 @@
-import { useEffect, useRef } from 'react';
-import useFadeUp from '../hooks/useFadeUp';
+import { motion, useScroll, useTransform, useSpring } from 'framer-motion';
+import { useRef, useState } from 'react';
 
 const ArrowIcon = () => (
   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
@@ -8,186 +8,201 @@ const ArrowIcon = () => (
   </svg>
 );
 
-function FloatingCard({ className, style, children, onClick }) {
+function FloatingCard({ children, className, delay = 0 }) {
   return (
-    <div
-      onClick={onClick}
-      className={`absolute cursor-pointer transition-transform duration-600 ${className}`}
-      style={{
-        background: 'var(--color-glass-bg)',
-        backdropFilter: 'blur(20px)',
-        WebkitBackdropFilter: 'blur(20px)',
-        border: '1px solid var(--color-glass-border)',
-        borderRadius: '24px',
-        padding: '2rem',
-        boxShadow: 'var(--shadow-card)',
-        transformStyle: 'preserve-3d',
-        ...style,
+    <motion.div
+      initial={{ opacity: 0, y: 40, rotateX: 10 }}
+      whileInView={{ opacity: 1, y: 0, rotateX: 0 }}
+      viewport={{ once: true }}
+      transition={{ 
+        duration: 0.8, 
+        delay, 
+        ease: [0.21, 1.02, 0.47, 0.98] 
       }}
+      whileHover={{ y: -10, transition: { duration: 0.3 } }}
+      className={`glass-card p-6 ${className}`}
     >
       {children}
-    </div>
+    </motion.div>
   );
 }
 
 export default function Hero() {
-  const textRef = useFadeUp();
-  const visualRef = useFadeUp(0.3);
+  const containerRef = useRef(null);
+  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
 
-  const scrollToProducts = () => {
-    document.getElementById('products')?.scrollIntoView({ behavior: 'smooth' });
+  const handleMouseMove = (e) => {
+    const { clientX, clientY } = e;
+    const { innerWidth, innerHeight } = window;
+    setMousePos({
+      x: (clientX / innerWidth - 0.5) * 20,
+      y: (clientY / innerHeight - 0.5) * 20,
+    });
   };
+
+  const { scrollY } = useScroll();
+  const y1 = useTransform(scrollY, [0, 500], [0, 200]);
+  const y2 = useTransform(scrollY, [0, 500], [0, -150]);
+  const opacity = useTransform(scrollY, [0, 300], [1, 0]);
 
   return (
     <section
-      id="hero"
-      className="min-h-screen flex items-center relative overflow-hidden px-16 pt-32 pb-16 max-md:px-6 max-md:pt-28 max-md:pb-12"
+      ref={containerRef}
+      onMouseMove={handleMouseMove}
+      className="relative min-h-[110vh] flex items-center justify-center overflow-hidden pt-32 pb-20 px-6"
     >
-      {/* Organic blobs */}
-      <div
-        className="absolute opacity-45 animate-morph-blob"
-        style={{
-          width: 600, height: 600,
-          borderRadius: '60% 40% 70% 30% / 50% 60% 40% 50%',
-          filter: 'blur(60px)',
-          background: 'radial-gradient(circle, #b8d4b9, #7a9e7e44)',
-          top: -100, right: -80,
-          animationDuration: '14s',
+      {/* Background blobs with parallax/mouse-follow */}
+      <motion.div
+        animate={{ 
+          x: mousePos.x * 1.5, 
+          y: mousePos.y * 1.5 + (typeof window !== 'undefined' ? window.scrollY * 0.1 : 0) 
         }}
+        className="absolute top-[-10%] right-[-5%] w-[600px] h-[600px] bg-sage/30 rounded-full blur-[120px] mix-blend-multiply pointer-events-none"
+        style={{ borderRadius: '60% 40% 70% 30% / 50% 60% 40% 50%' }}
       />
-      <div
-        className="absolute opacity-45 animate-morph-blob"
-        style={{
-          width: 400, height: 400,
-          borderRadius: '60% 40% 70% 30% / 50% 60% 40% 50%',
-          filter: 'blur(60px)',
-          background: 'radial-gradient(circle, #e8d5b8, #c4a88266)',
-          bottom: -50, left: 200,
-          animationDuration: '10s',
-          animationDelay: '-5s',
-        }}
-      />
-      <div
-        className="absolute opacity-45 animate-morph-blob"
-        style={{
-          width: 300, height: 300,
-          borderRadius: '60% 40% 70% 30% / 50% 60% 40% 50%',
-          filter: 'blur(60px)',
-          background: 'radial-gradient(circle, #d4e8d4, #7a9e7e44)',
-          top: '40%', left: -60,
-          animationDuration: '16s',
-          animationDelay: '-3s',
-        }}
+      <motion.div
+        animate={{ x: -mousePos.x, y: -mousePos.y }}
+        className="absolute bottom-[5%] left-[10%] w-[400px] h-[400px] bg-earth/20 rounded-full blur-[100px] mix-blend-multiply pointer-events-none"
+        style={{ borderRadius: '30% 60% 30% 70% / 60% 40% 60% 40%' }}
       />
 
-      <div className="relative z-2 grid grid-cols-1 md:grid-cols-2 gap-16 items-center max-w-[1300px] mx-auto w-full">
-        {/* Text */}
-        <div ref={textRef} className="fade-up">
-          <div
-            className="inline-flex items-center gap-2 px-4 py-1.5 rounded-[2rem] text-[0.75rem] tracking-[0.1em] uppercase text-sage-dark mb-6"
-            style={{
-              background: 'rgba(122,158,126,0.15)',
-              border: '1px solid rgba(122,158,126,0.3)',
-              backdropFilter: 'blur(10px)',
-            }}
+      <div className="container relative z-10 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center max-w-[1400px] mx-auto">
+        
+        {/* Left Side: Content */}
+        <div className="relative max-w-2xl">
+          <motion.div
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.8, delay: 0.2 }}
+            className="inline-flex items-center gap-3 px-4 py-2 rounded-full glass-card mb-8 border-sage/20"
           >
-            <span
-              className="w-1.5 h-1.5 bg-sage rounded-full animate-pulse-dot"
-            />
-            100% Natural Origin · Dermatologist Tested
+            <span className="w-2 h-2 bg-sage rounded-full animate-pulse" />
+            <span className="text-[0.7rem] uppercase tracking-[0.2em] font-medium text-sage-dark">
+              100% Organic · Vegan · Cruelty Free
+            </span>
+          </motion.div>
+
+          <div className="mask-text overflow-hidden">
+            <motion.h1
+              initial={{ y: '100%' }}
+              animate={{ y: 0 }}
+              transition={{ duration: 1, ease: [0.16, 1, 0.3, 1], delay: 0.3 }}
+              className="font-heading text-[clamp(4rem,8vw,7.5rem)] font-light leading-[0.95] text-charcoal tracking-tight mb-8"
+            >
+              Pure Hands.<br />
+              <motion.span 
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.8, duration: 1 }}
+                className="italic text-sage font-light"
+              >
+                Gentle Soul.
+              </motion.span>
+            </motion.h1>
           </div>
 
-          <h1 className="font-heading text-[clamp(3.5rem,6vw,6rem)] font-light leading-[1.05] tracking-[-0.02em] text-charcoal mb-4">
-            Clean hands.<br />
-            <em className="italic text-sage-dark">Pure life.</em>
-          </h1>
+          <motion.p
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.6 }}
+            className="text-[1.15rem] text-text-muted leading-relaxed max-w-lg mb-12 font-light"
+          >
+            Experience the harmony of nature and protection. Our plant-based formulas nourish your skin while shielding you from the world.
+          </motion.p>
 
-          <p className="text-[1.05rem] text-text-muted leading-[1.7] max-w-[420px] mb-10 font-light">
-            Plant-powered protection for every hand in your home. Gentle on skin, tough on germs — formulated with love for your family.
-          </p>
-
-          <div className="flex gap-4 items-center flex-wrap">
-            <a href="#products" className="btn-primary">
-              Explore Products
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.8 }}
+            className="flex flex-wrap gap-5 items-center"
+          >
+            <a href="#products" className="btn-primary px-10 py-5 text-[1rem]">
+              Shop Collection
               <ArrowIcon />
             </a>
-            <a href="#why" className="btn-ghost">Our Promise</a>
-          </div>
+            <a href="#about" className="group flex items-center gap-2 text-charcoal font-medium tracking-wide hover:text-sage transition-colors">
+              <span className="w-10 h-10 rounded-full border border-charcoal/10 flex items-center justify-center group-hover:border-sage transition-colors">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <polygon points="5 3 19 12 5 21 5 3" />
+                </svg>
+              </span>
+              Our Story
+            </a>
+          </motion.div>
         </div>
 
-        {/* Visual - Floating Cards */}
-        <div ref={visualRef} className="fade-up relative h-[520px] max-md:h-[350px]" style={{ perspective: 1200 }}>
-          {/* Main Sanitizer */}
-          <FloatingCard
-            className="w-[220px] top-[30px] left-1/2 z-3 animate-float-main"
-            style={{ transform: 'translateX(-50%) rotateY(-8deg) rotateX(4deg)' }}
-            onClick={scrollToProducts}
+        {/* Right Side: Visual Composition */}
+        <div className="relative h-[650px] flex items-center justify-center lg:justify-end pr-8">
+          
+          {/* Main Floating Image Card */}
+          <motion.div
+            style={{ y: y1 }}
+            className="relative z-10 w-[320px] group"
           >
-            <div className="w-full aspect-square rounded-[16px] mb-4 flex items-center justify-center overflow-hidden" style={{ background: '#eef7ee' }}>
-              <img src="/cards/card1.png" className="w-[80%] h-[80%] object-contain drop-shadow-[0_12px_28px_rgba(0,0,0,0.18)]" alt="Pura Sanitizer" />
-            </div>
-            <div className="font-heading text-[1.1rem] font-semibold text-charcoal mb-0.5">Pura Sanitizer</div>
-            <div className="text-[0.75rem] text-text-muted tracking-[0.06em]">Aloe &amp; Green Tea</div>
-            <div className="text-[1rem] font-medium text-sage-dark mt-2">₹149</div>
-          </FloatingCard>
-
-          {/* Cream */}
-          <FloatingCard
-            className="w-[170px] top-[120px] left-[10px] z-2 animate-float-left"
-            style={{
-              transform: 'rotateY(10deg) rotateX(-3deg) rotateZ(-4deg)',
-              animationDelay: '-2s',
-            }}
-            onClick={scrollToProducts}
-          >
-            <div className="w-full aspect-square rounded-[16px] mb-4 flex items-center justify-center overflow-hidden" style={{ background: '#faf4ec' }}>
-              <img src="/cards/card2.png" className="w-[80%] h-[80%] object-contain drop-shadow-[0_12px_28px_rgba(0,0,0,0.18)]" alt="Restore Cream" />
-            </div>
-            <div className="font-heading text-[1.1rem] font-semibold text-charcoal mb-0.5">Restore Cream</div>
-            <div className="text-[0.75rem] text-text-muted tracking-[0.06em]">Shea &amp; Honey</div>
-            <div className="text-[1rem] font-medium text-sage-dark mt-2">₹199</div>
-          </FloatingCard>
-
-          {/* Mini set */}
-          <FloatingCard
-            className="w-[160px] top-[200px] right-0 z-2 animate-float-right"
-            style={{
-              transform: 'rotateY(-12deg) rotateX(5deg) rotateZ(5deg)',
-              animationDelay: '-4s',
-            }}
-            onClick={scrollToProducts}
-          >
-            <div className="w-full aspect-square rounded-[16px] mb-4 flex items-center justify-center overflow-hidden" style={{ background: '#f0f7f0' }}>
-              <img src="/cards/card3.png" className="w-[80%] h-[80%] object-contain drop-shadow-[0_12px_28px_rgba(0,0,0,0.18)]" alt="Duo Set" />
-            </div>
-            <div className="font-heading text-[1.1rem] font-semibold text-charcoal mb-0.5">Duo Set</div>
-            <div className="text-[1rem] font-medium text-sage-dark mt-2">₹299</div>
-          </FloatingCard>
-
-          {/* Stats card */}
-          <FloatingCard
-            className="w-[200px] bottom-[20px] left-[30%] z-1 animate-float-main"
-            style={{ padding: '1.2rem 1.5rem', animationDelay: '-1s' }}
-          >
-            <div className="flex gap-8 items-center">
-              <div className="text-center">
-                <div className="font-heading text-[1.8rem] font-semibold text-sage-dark">99.9%</div>
-                <div className="text-[0.7rem] text-text-muted tracking-[0.05em]">Germ Kill</div>
+            <FloatingCard className="w-full aspect-[3/4] flex flex-col justify-between overflow-hidden p-0 rounded-[32px]">
+              <div className="h-[75%] w-full bg-[#f4f7f4] flex items-center justify-center p-8 overflow-hidden">
+                <motion.img
+                  whileHover={{ scale: 1.05 }}
+                  transition={{ duration: 0.6, ease: "easeOut" }}
+                  src="/cards/card1.png"
+                  className="w-full h-full object-contain drop-shadow-2xl"
+                  alt="Pure Sanitizer"
+                />
               </div>
-              <div className="w-px h-10 bg-glass-border" />
-              <div className="text-center">
-                <div className="font-heading text-[1.8rem] font-semibold text-earth-dark">100%</div>
-                <div className="text-[0.7rem] text-text-muted tracking-[0.05em]">Natural</div>
+              <div className="p-8 bg-white/40 backdrop-blur-md">
+                <h3 className="font-heading text-2xl font-medium text-charcoal">Botanical Mist</h3>
+                <p className="text-sm text-text-muted mt-1 uppercase tracking-widest">Lavender & Mint</p>
+                <div className="mt-4 flex justify-between items-end">
+                  <span className="text-xl font-heading text-sage-dark">₹199</span>
+                  <span className="text-xs font-medium px-2 py-1 rounded-full bg-sage/10 text-sage-dark">Best Seller</span>
+                </div>
               </div>
-              <div className="w-px h-10 bg-glass-border" />
-              <div className="text-center">
-                <div className="font-heading text-[1.8rem] font-semibold text-charcoal">0</div>
-                <div className="text-[0.7rem] text-text-muted tracking-[0.05em]">Parabens</div>
+            </FloatingCard>
+          </motion.div>
+
+          {/* Secondary Card (Cream) */}
+          <motion.div
+            style={{ y: y2 }}
+            className="absolute left-[0%] top-[10%] z-20 w-[220px]"
+          >
+            <FloatingCard delay={0.4} className="rounded-2xl p-4 bg-cream/40 overflow-hidden">
+              <div className="aspect-square bg-warm-white rounded-xl mb-4 p-4">
+                <img src="/cards/card2.png" className="w-full h-full object-contain" alt="Cream" />
               </div>
+              <p className="text-[0.65rem] uppercase tracking-widest text-earth-dark font-bold mb-1">Coming Soon</p>
+              <h4 className="font-heading text-lg text-charcoal">Aloe Recovery</h4>
+            </FloatingCard>
+          </motion.div>
+
+          {/* Circle Stats */}
+          <motion.div
+            style={{ y: y1 }}
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: 1, duration: 0.8 }}
+            className="absolute bottom-[10%] right-[-5%] z-30"
+          >
+            <div className="w-32 h-32 rounded-full glass-card border-none flex flex-col items-center justify-center text-center p-2 shadow-2xl">
+              <span className="font-heading text-3xl text-sage-dark leading-none">99%</span>
+              <span className="text-[10px] uppercase tracking-tighter text-text-muted mt-1">Natural<br/>Ingredients</span>
             </div>
-          </FloatingCard>
+          </motion.div>
+
+          {/* Subtle Accent Shapes */}
+          <div className="absolute top-[20%] right-[-10%] w-4 h-4 rounded-full bg-sage animate-ping opacity-20" />
+          <div className="absolute bottom-[30%] left-[20%] w-2 h-2 rounded-full bg-earth animate-pulse" />
         </div>
+
       </div>
+
+      {/* Decorative Floor */}
+      <motion.div 
+        style={{ opacity }}
+        className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-4 text-text-muted/40 uppercase text-[0.6rem] tracking-[0.4em]"
+      >
+        <span>Scroll to explore</span>
+        <div className="w-[1px] h-12 bg-gradient-to-b from-charcoal/40 to-transparent" />
+      </motion.div>
     </section>
   );
 }
