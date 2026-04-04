@@ -63,10 +63,63 @@ router.get('/:id/variants', async (req, res) => {
     const { data: variants, error } = await supabaseAdmin
       .from('product_variants')
       .select('*')
-      .eq('product_id', req.params.id);
+      .eq('product_id', req.params.id)
+      .order('variant_name');
 
     if (error) throw error;
     res.json(variants);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// POST add variant (Admin only)
+router.post('/:id/variants', requireAuth, requireAdmin, async (req, res) => {
+  try {
+    const { variant_name, color_hex, size_ml, stock } = req.body;
+    const { data, error } = await supabaseAdmin
+      .from('product_variants')
+      .insert({ product_id: req.params.id, variant_name, color_hex, size_ml, stock: stock || 0 })
+      .select()
+      .single();
+
+    if (error) throw error;
+    res.status(201).json(data);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// PUT update variant (Admin only)
+router.put('/:id/variants/:variantId', requireAuth, requireAdmin, async (req, res) => {
+  try {
+    const { variant_name, color_hex, size_ml, stock } = req.body;
+    const { data, error } = await supabaseAdmin
+      .from('product_variants')
+      .update({ variant_name, color_hex, size_ml, stock })
+      .eq('id', req.params.variantId)
+      .eq('product_id', req.params.id)
+      .select()
+      .single();
+
+    if (error) throw error;
+    res.json(data);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// DELETE variant (Admin only)
+router.delete('/:id/variants/:variantId', requireAuth, requireAdmin, async (req, res) => {
+  try {
+    const { error } = await supabaseAdmin
+      .from('product_variants')
+      .delete()
+      .eq('id', req.params.variantId)
+      .eq('product_id', req.params.id);
+
+    if (error) throw error;
+    res.json({ message: 'Variant deleted' });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

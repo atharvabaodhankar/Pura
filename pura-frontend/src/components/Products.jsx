@@ -329,24 +329,41 @@ export default function Products({ onAddToCart }) {
   useEffect(() => {
     fetch('http://localhost:5000/api/products')
       .then(res => res.json())
-      .then(data => {
-        // Map backend structure to the UI structure expected by ProductCard
-        const mapped = data.map(p => ({
-          id: p.id,
-          slug: p.slug,
-          cat: p.category,
-          name: p.name,
-          desc: p.description,
-          price: p.price,
-          priceDisplay: `₹${p.price}`,
-          oldPrice: p.compare_price ? `₹${p.compare_price}` : null,
-          img: p.images && p.images.length > 0 ? p.images[0] : '',
-          imgBg: '#fdf6ee', // default card bg
-          ingredients: [],
-          variants: [],
-          category: p.category.charAt(0).toUpperCase() + p.category.slice(1)
-        }));
-        setDbProducts(mapped);
+      .then(async data => {
+        // Fetch variants for all products in parallel
+        const withVariants = await Promise.all(
+          data.map(async p => {
+            let variants = [];
+            try {
+              const vRes = await fetch(`http://localhost:5000/api/products/${p.id}/variants`);
+              if (vRes.ok) variants = await vRes.json();
+            } catch (_) {}
+
+            return {
+              id: p.id,
+              slug: p.slug,
+              cat: p.category,
+              name: p.name,
+              desc: p.description,
+              price: p.price,
+              priceDisplay: `₹${p.price}`,
+              oldPrice: p.compare_price ? `₹${p.compare_price}` : null,
+              img: p.images && p.images.length > 0 ? p.images[0] : '',
+              imgBg: '#fdf6ee',
+              ingredients: [],
+              variants: variants.map((v, i) => ({
+                id: v.id,
+                color: v.color_hex || '#ccc',
+                title: v.variant_name,
+                size_ml: v.size_ml,
+                active: i === 0,
+              })),
+              category: p.category.charAt(0).toUpperCase() + p.category.slice(1),
+              tags: p.tags || [],
+            };
+          })
+        );
+        setDbProducts(withVariants);
       })
       .catch(err => console.error("Error fetching products", err))
       .finally(() => setLoading(false));
