@@ -5,7 +5,7 @@ import { useAuth } from '../context/AuthContext';
 import { supabase } from '../lib/supabase';
 import { ArrowLeft, ShoppingBag, Star, ShieldCheck, Truck, RefreshCw, Send, CheckCircle2 } from 'lucide-react';
 
-const API = 'http://localhost:5000/api';
+const API = import.meta.env.VITE_API_URL;
 
 function StarRating({ value, onChange, size = 'md' }) {
   const [hovered, setHovered] = useState(0);

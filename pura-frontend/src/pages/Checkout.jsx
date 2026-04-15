@@ -90,7 +90,7 @@ export default function Checkout() {
         formData
       };
 
-      const res = await fetch('http://localhost:5000/api/checkout/create-order', {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/checkout/create-order`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
         body: JSON.stringify(payload)
@@ -108,7 +108,7 @@ export default function Checkout() {
         order_id: orderData.razorpayOrder.id,
         handler: async (response) => {
           try {
-            const verifyRes = await fetch('http://localhost:5000/api/checkout/verify', {
+            const verifyRes = await fetch(`${import.meta.env.VITE_API_URL}/checkout/verify`, {
               method: 'POST',
               headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
               body: JSON.stringify({

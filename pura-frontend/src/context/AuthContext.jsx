@@ -38,7 +38,7 @@ export const AuthProvider = ({ children }) => {
   const fetchProfile = async (userId) => {
     try {
       const { data: { session } } = await supabase.auth.getSession();
-      const res = await fetch(`http://localhost:5000/api/profiles/${userId}`, {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/profiles/${userId}`, {
         headers: {
           'Authorization': `Bearer ${session?.access_token}`
         }

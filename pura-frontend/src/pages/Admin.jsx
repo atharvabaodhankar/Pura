@@ -5,7 +5,7 @@ import { GoogleMap, useJsApiLoader, HeatmapLayer } from '@react-google-maps/api'
 import { Package, Map, PlusCircle, CheckCircle2, Star, MessageSquare, ThumbsUp, ThumbsDown } from 'lucide-react';
 
 const libraries = ['visualization'];
-const API = 'http://localhost:5000/api';
+const API = import.meta.env.VITE_API_URL;
 
 export default function Admin() {
   const { profile, loading: authLoading } = useAuth();

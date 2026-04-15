@@ -19,7 +19,7 @@ export default function Orders() {
     async function fetchOrders() {
       try {
         const { data: { session } } = await supabase.auth.getSession();
-        const res = await fetch('http://localhost:5000/api/orders/my-orders', {
+        const res = await fetch(`${import.meta.env.VITE_API_URL}/orders/my-orders`, {
           headers: {
             'Authorization': `Bearer ${session?.access_token}`
           }

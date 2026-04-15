@@ -331,7 +331,7 @@ export default function Products({ onAddToCart }) {
   const headerRef = useFadeUp();
 
   useEffect(() => {
-    fetch('http://localhost:5000/api/products')
+    fetch(`${import.meta.env.VITE_API_URL}/products`)
       .then(res => res.json())
       .then(async data => {
         // Fetch variants for all products in parallel
@@ -339,7 +339,7 @@ export default function Products({ onAddToCart }) {
           data.map(async p => {
             let variants = [];
             try {
-              const vRes = await fetch(`http://localhost:5000/api/products/${p.id}/variants`);
+              const vRes = await fetch(`${import.meta.env.VITE_API_URL}/products/${p.id}/variants`);
               if (vRes.ok) variants = await vRes.json();
             } catch (_) {}
 
