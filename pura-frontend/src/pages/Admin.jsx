@@ -189,30 +189,30 @@ export default function Admin() {
 
   return (
     <div className="pt-32 px-6 md:px-16 max-w-[1200px] mx-auto pb-20">
-      <div className="flex flex-col md:flex-row justify-between md:items-center mb-8 gap-4">
+      <div className="flex flex-col lg:flex-row justify-between lg:items-center mb-10 gap-8">
         <h1 className="font-heading text-4xl text-charcoal font-semibold">Admin Dashboard</h1>
-        <div className="flex gap-2 p-1 bg-black/5 rounded-full inline-flex">
+        <div className="flex gap-2 p-1.5 bg-black/5 rounded-2xl md:rounded-full overflow-x-auto no-scrollbar shadow-inner shadow-black/5">
           <button 
             onClick={() => setActiveTab('orders')}
-            className={`flex items-center gap-2 px-6 py-2.5 rounded-full text-sm font-semibold transition-all cursor-pointer ${activeTab === 'orders' ? 'bg-white shadow-md text-charcoal' : 'text-charcoal/60 hover:text-charcoal border-none bg-transparent'}`}
+            className={`flex items-center gap-2 px-6 py-2.5 rounded-xl md:rounded-full text-xs md:text-sm font-semibold transition-all cursor-pointer whitespace-nowrap ${activeTab === 'orders' ? 'bg-white shadow-md text-charcoal' : 'text-charcoal/60 hover:text-charcoal border-none bg-transparent'}`}
           >
             <Package className="w-4 h-4" /> Orders
           </button>
           <button 
             onClick={() => setActiveTab('heatmap')}
-            className={`flex items-center gap-2 px-6 py-2.5 rounded-full text-sm font-semibold transition-all cursor-pointer ${activeTab === 'heatmap' ? 'bg-white shadow-md text-charcoal' : 'text-charcoal/60 hover:text-charcoal border-none bg-transparent'}`}
+            className={`flex items-center gap-2 px-6 py-2.5 rounded-xl md:rounded-full text-xs md:text-sm font-semibold transition-all cursor-pointer whitespace-nowrap ${activeTab === 'heatmap' ? 'bg-white shadow-md text-charcoal' : 'text-charcoal/60 hover:text-charcoal border-none bg-transparent'}`}
           >
             <Map className="w-4 h-4" /> Heatmap
           </button>
           <button 
             onClick={() => setActiveTab('addProduct')}
-            className={`flex items-center gap-2 px-6 py-2.5 rounded-full text-sm font-semibold transition-all cursor-pointer ${activeTab === 'addProduct' ? 'bg-white shadow-md text-charcoal' : 'text-charcoal/60 hover:text-charcoal border-none bg-transparent'}`}
+            className={`flex items-center gap-2 px-6 py-2.5 rounded-xl md:rounded-full text-xs md:text-sm font-semibold transition-all cursor-pointer whitespace-nowrap ${activeTab === 'addProduct' ? 'bg-white shadow-md text-charcoal' : 'text-charcoal/60 hover:text-charcoal border-none bg-transparent'}`}
           >
             <PlusCircle className="w-4 h-4" /> New Product
           </button>
           <button 
             onClick={() => setActiveTab('reviews')}
-            className={`flex items-center gap-2 px-6 py-2.5 rounded-full text-sm font-semibold transition-all cursor-pointer ${activeTab === 'reviews' ? 'bg-white shadow-md text-charcoal' : 'text-charcoal/60 hover:text-charcoal border-none bg-transparent'}`}
+            className={`flex items-center gap-2 px-6 py-2.5 rounded-xl md:rounded-full text-xs md:text-sm font-semibold transition-all cursor-pointer whitespace-nowrap ${activeTab === 'reviews' ? 'bg-white shadow-md text-charcoal' : 'text-charcoal/60 hover:text-charcoal border-none bg-transparent'}`}
           >
             <MessageSquare className="w-4 h-4" /> Reviews
             {reviews.filter(r => !r.is_approved).length > 0 && (
@@ -225,10 +225,10 @@ export default function Admin() {
       </div>
       
       {activeTab === 'orders' && (
-        <div className="bg-white rounded-3xl shadow-lg shadow-black/5 border border-glass-border p-8 animate-fade-up">
+        <div className="bg-white rounded-3xl shadow-lg shadow-black/5 border border-glass-border p-5 md:p-8 animate-fade-up overflow-hidden">
           <h2 className="font-heading text-2xl mb-6">Recent Orders</h2>
-          <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse">
+          <div className="overflow-x-auto -mx-5 md:-mx-8 px-5 md:px-8">
+            <table className="w-full text-left border-collapse min-w-[700px]">
               <thead>
                 <tr className="border-b border-glass-border text-xs text-text-muted uppercase tracking-widest font-bold">
                   <th className="pb-4">Order ID</th>
@@ -288,10 +288,10 @@ export default function Admin() {
       )}
 
       {activeTab === 'heatmap' && (
-        <div className="bg-white rounded-3xl shadow-lg shadow-black/5 border border-glass-border p-8 animate-fade-up">
-          <div className="flex justify-between items-center mb-6">
+        <div className="bg-white rounded-3xl shadow-lg shadow-black/5 border border-glass-border p-5 md:p-8 animate-fade-up">
+          <div className="flex flex-col sm:flex-row justify-between sm:items-center mb-6 gap-3">
             <h2 className="font-heading text-2xl">Order Density Map</h2>
-            <div className="text-sm font-medium text-text-muted bg-warm-white px-4 py-1.5 rounded-full">
+            <div className="text-[0.75rem] font-bold uppercase tracking-widest text-text-muted bg-warm-white px-4 py-2 rounded-full border border-glass-border inline-block self-start">
               {heatmapData.length} valid order locations mapped
             </div>
           </div>
@@ -331,7 +331,7 @@ export default function Admin() {
       )}
 
       {activeTab === 'addProduct' && (
-        <div className="bg-white rounded-3xl shadow-lg shadow-black/5 border border-glass-border p-8 animate-fade-up max-w-2xl mx-auto">
+        <div className="bg-white rounded-3xl shadow-lg shadow-black/5 border border-glass-border p-5 md:p-8 animate-fade-up max-w-2xl mx-auto">
           <h2 className="font-heading text-2xl mb-8">Add New Product</h2>
           
           {productSuccess && (

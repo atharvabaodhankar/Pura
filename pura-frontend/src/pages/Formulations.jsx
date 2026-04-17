@@ -154,7 +154,7 @@ export default function Formulations() {
 }
 
 function ProductCard({ product, delay }) {
-  const { Icon } = product;
+  const Icon = product.icon;
   return (
     <motion.div
       initial={{ opacity: 0, y: 30 }}

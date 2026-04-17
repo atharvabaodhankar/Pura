@@ -81,14 +81,14 @@ export default function Orders() {
     <div className="min-h-screen bg-warm-white pt-32 pb-20 px-6 md:px-12 lg:px-16">
       <div className="max-w-4xl mx-auto">
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
-          <div>
-            <Link to="/" className="flex items-center gap-2 text-text-muted hover:text-charcoal transition-colors mb-6 font-medium">
+          <div className="fade-up">
+            <Link to="/" className="flex items-center gap-2 text-text-muted hover:text-charcoal transition-colors mb-6 font-medium text-sm">
               <ArrowLeft className="w-4 h-4" />
               Back to Store
             </Link>
-            <h1 className="font-heading text-5xl font-semibold text-charcoal">Your Orders</h1>
+            <h1 className="font-heading text-4xl md:text-5xl font-semibold text-charcoal">Your Orders</h1>
           </div>
-          <div className="text-text-muted font-medium bg-white/50 backdrop-blur-md px-6 py-3 rounded-2xl border border-glass-border">
+          <div className="text-text-muted font-bold text-xs uppercase tracking-widest bg-white/50 backdrop-blur-md px-6 py-3 rounded-full border border-glass-border self-start md:self-auto">
             {orders.length} {orders.length === 1 ? 'Order' : 'Orders'} Total
           </div>
         </div>
@@ -107,47 +107,47 @@ export default function Orders() {
             {orders.map((order) => (
               <div key={order.id} className="glass rounded-[40px] border-glass-border overflow-hidden hover:shadow-xl transition-all duration-500">
                 {/* Order Header */}
-                <div className="p-8 border-b border-glass-border bg-white/40 flex flex-wrap items-center justify-between gap-6">
-                  <div className="flex flex-wrap items-center gap-x-12 gap-y-4">
+                <div className="p-6 md:p-8 border-b border-glass-border bg-white/40 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+                  <div className="grid grid-cols-2 md:flex md:flex-wrap items-center gap-x-8 md:gap-x-12 gap-y-6">
                     <div>
-                      <div className="text-[0.65rem] font-bold text-charcoal/40 uppercase tracking-widest mb-1">Order Placed</div>
-                      <div className="font-medium text-charcoal">{new Date(order.created_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}</div>
+                      <div className="text-[0.6rem] font-bold text-charcoal/40 uppercase tracking-widest mb-1">Order Placed</div>
+                      <div className="text-sm font-semibold text-charcoal">{new Date(order.created_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}</div>
                     </div>
                     <div>
-                      <div className="text-[0.65rem] font-bold text-charcoal/40 uppercase tracking-widest mb-1">Total Amount</div>
-                      <div className="font-heading font-bold text-charcoal">₹{order.total_amount}</div>
+                      <div className="text-[0.6rem] font-bold text-charcoal/40 uppercase tracking-widest mb-1">Total Amount</div>
+                      <div className="font-heading text-lg font-bold text-charcoal">₹{order.total_amount}</div>
                     </div>
-                    <div>
-                      <div className="text-[0.65rem] font-bold text-charcoal/40 uppercase tracking-widest mb-1">Ship to</div>
-                      <div className="font-medium text-charcoal truncate max-w-[200px]">{order.shipping_address?.full_address || order.shipping_address}</div>
+                    <div className="col-span-2 md:col-span-1">
+                      <div className="text-[0.6rem] font-bold text-charcoal/40 uppercase tracking-widest mb-1">Ship to</div>
+                      <div className="text-sm font-semibold text-charcoal truncate max-w-[200px]">{order.shipping_address?.full_address || order.shipping_address}</div>
                     </div>
                   </div>
-                  <div className="flex items-center gap-4">
-                    <div className={`flex items-center gap-2 px-4 py-1.5 rounded-full border text-xs font-bold uppercase tracking-wider ${getStatusClass(order.status)}`}>
+                  <div className="flex items-center justify-between lg:justify-end gap-4 border-t lg:border-none border-glass-border/30 pt-4 lg:pt-0">
+                    <div className={`flex items-center gap-2 px-4 py-1.5 rounded-full border text-[0.65rem] font-bold uppercase tracking-wider ${getStatusClass(order.status)}`}>
                       {getStatusIcon(order.status)}
                       {order.status}
                     </div>
-                    <div className="text-xs font-medium text-text-muted">
+                    <div className="text-[0.65rem] font-bold text-text-muted opacity-50 uppercase tracking-tighter">
                       #PURA-{order.id.slice(0, 8).toUpperCase()}
                     </div>
                   </div>
                 </div>
 
                 {/* Order Items */}
-                <div className="p-8 space-y-6 bg-white/20">
+                <div className="p-6 md:p-8 space-y-8 bg-white/20">
                   {order.order_items.map((item) => (
-                    <div key={item.id} className="flex gap-6 items-center">
-                      <div className="w-20 h-20 rounded-2xl bg-black/5 flex items-center justify-center p-2 shrink-0 border border-glass-border">
+                    <div key={item.id} className="flex flex-col sm:flex-row gap-6 items-start sm:items-center">
+                      <div className="w-16 h-16 md:w-20 md:h-20 rounded-2xl bg-black/5 flex items-center justify-center p-2 shrink-0 border border-glass-border">
                         <img src={item.products?.images?.[0]} alt={item.products?.name} className="w-full h-full object-contain" />
                       </div>
                       <div className="flex-1">
-                        <h4 className="font-semibold text-charcoal text-lg">{item.products?.name}</h4>
-                        <div className="text-sm text-text-muted mt-1">Quantity: {item.quantity} · Price: ₹{item.price}</div>
-                        <Link to={`/product/${item.products?.slug}`} className="text-xs font-bold text-sage-dark uppercase tracking-widest mt-3 inline-block hover:underline">
+                        <h4 className="font-semibold text-charcoal text-base md:text-lg">{item.products?.name}</h4>
+                        <div className="text-xs md:text-sm text-text-muted mt-1">Quantity: {item.quantity} · Price: ₹{item.price}</div>
+                        <Link to={`/product/${item.products?.slug}`} className="text-[0.65rem] font-bold text-sage-dark uppercase tracking-widest mt-3 inline-block hover:underline">
                           Buy it again
                         </Link>
                       </div>
-                      <button className="px-6 py-3 rounded-full bg-white border border-glass-border text-sm font-semibold hover:bg-black/5 transition-colors cursor-pointer">
+                      <button className="w-full sm:w-auto px-6 py-3 rounded-full bg-white border border-glass-border text-xs md:text-sm font-bold uppercase tracking-widest hover:bg-black/5 transition-colors cursor-pointer shadow-sm">
                         Track Package
                       </button>
                     </div>
@@ -156,9 +156,9 @@ export default function Orders() {
 
                 {/* Order Footer */}
                 {order.status === 'delivered' && (
-                  <div className="px-8 py-4 bg-sage-light/5 border-t border-glass-border flex items-center justify-between">
-                    <span className="text-sm font-medium text-sage-dark">Delivered successfully. How was your experience?</span>
-                    <button className="text-sm font-bold text-charcoal uppercase tracking-widest hover:underline cursor-pointer border-none bg-transparent">
+                  <div className="px-6 md:px-8 py-4 bg-sage-light/5 border-t border-glass-border flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                    <span className="text-xs md:text-sm font-semibold text-sage-dark">How was your product experience?</span>
+                    <button className="text-[0.65rem] font-bold text-charcoal uppercase tracking-widest hover:underline cursor-pointer border-none bg-transparent">
                       Write a Review
                     </button>
                   </div>
@@ -168,17 +168,17 @@ export default function Orders() {
           </div>
         )}
 
-        <div className="mt-16 p-8 rounded-[40px] bg-charcoal text-cream flex items-center justify-between overflow-hidden relative">
+        <div className="mt-16 p-8 md:p-12 rounded-[40px] bg-charcoal text-cream flex flex-col md:flex-row items-start md:items-center justify-between gap-8 overflow-hidden relative">
           <div className="relative z-10">
-            <h3 className="text-2xl font-heading font-semibold mb-2">Need help with an order?</h3>
-            <p className="opacity-70 text-sm">Our support team is available 24/7 to assist you with any questions.</p>
+            <h3 className="text-2xl md:text-3xl font-heading font-semibold mb-3">Order assistance?</h3>
+            <p className="opacity-70 text-sm md:text-base max-w-sm">Our support team is available 24/7 to assist you with any questions about your delivery.</p>
           </div>
-          <button className="bg-cream text-charcoal px-8 py-4 rounded-full font-bold hover:scale-105 transition-transform z-10">
+          <button className="w-full md:w-auto bg-cream text-charcoal px-10 py-4 rounded-full font-bold hover:scale-105 transition-transform z-10 whitespace-nowrap shadow-xl">
             Contact Support
           </button>
           {/* Abstract blobs */}
-          <div className="absolute top-0 right-0 w-64 h-64 bg-sage-dark/20 blur-3xl rounded-full translate-x-1/2 -translate-y-1/2" />
-          <div className="absolute bottom-0 left-0 w-64 h-64 bg-sage-light/10 blur-3xl rounded-full -translate-x-1/2 translate-y-1/2" />
+          <div className="absolute top-0 right-0 w-64 h-64 bg-sage-dark/20 blur-[80px] rounded-full translate-x-1/2 -translate-y-1/2" />
+          <div className="absolute bottom-0 left-0 w-64 h-64 bg-sage-light/10 blur-[80px] rounded-full -translate-x-1/2 translate-y-1/2" />
         </div>
       </div>
     </div>
