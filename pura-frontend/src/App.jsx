@@ -25,6 +25,7 @@ import Admin from './pages/Admin';
 import ProductDetail from './pages/ProductDetail';
 import Checkout from './pages/Checkout';
 import Orders from './pages/Orders';
+import Formulations from './pages/Formulations';
 import Preloader from './components/Preloader';
 
 function LandingPage({ onAddToCart }) {
@@ -78,6 +79,7 @@ function App() {
           <Route path="/product/:slug" element={<ProductDetail />} />
           <Route path="/checkout" element={<Checkout />} />
           <Route path="/orders" element={<Orders />} />
+          <Route path="/formulations" element={<Formulations />} />
         </Routes>
         
         <Footer />

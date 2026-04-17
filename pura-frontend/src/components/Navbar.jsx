@@ -50,15 +50,26 @@ export default function Navbar({ onCartClick }) {
             { href: '/#how-it-works', label: 'How It Works' },
             { href: '/#why', label: 'Why Pura' },
             { href: '/#testimonials', label: 'Reviews' },
+            { to: '/formulations', label: 'Formulations' },
           ].map((link) => (
             <li key={link.label}>
-              <a
-                href={link.href}
-                className="no-underline text-charcoal text-[0.82rem] font-bold tracking-[0.1em] uppercase relative transition-colors duration-300 hover:text-sage-dark group"
-              >
-                {link.label}
-                <span className="absolute bottom-[-3px] left-0 w-0 h-px bg-sage-dark transition-all duration-300 group-hover:w-full" />
-              </a>
+              {link.href ? (
+                <a
+                  href={link.href}
+                  className="no-underline text-charcoal text-[0.82rem] font-bold tracking-[0.1em] uppercase relative transition-colors duration-300 hover:text-sage-dark group"
+                >
+                  {link.label}
+                  <span className="absolute bottom-[-3px] left-0 w-0 h-px bg-sage-dark transition-all duration-300 group-hover:w-full" />
+                </a>
+              ) : (
+                <Link
+                  to={link.to}
+                  className="no-underline text-charcoal text-[0.82rem] font-bold tracking-[0.1em] uppercase relative transition-colors duration-300 hover:text-sage-dark group"
+                >
+                  {link.label}
+                  <span className="absolute bottom-[-3px] left-0 w-0 h-px bg-sage-dark transition-all duration-300 group-hover:w-full" />
+                </Link>
+              )}
             </li>
           ))}
         </ul>
